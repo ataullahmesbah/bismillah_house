@@ -1,0 +1,1100 @@
+@import "tailwindcss";
+
+@source "../";
+
+/* ==========================================================================
+   TRUST MART — DESIGN TOKENS
+   Single source of truth for colour, type, radius, shadow and motion.
+   Change a token here and the whole platform follows.
+   ========================================================================== */
+@theme {
+  /* Brand: graphite / gray primary per PRD design direction */
+  --color-brand-50: #f6f7f8;
+  --color-brand-100: #eceef0;
+  --color-brand-200: #d5d9de;
+  --color-brand-300: #b1b9c1;
+  --color-brand-400: #86919d;
+  --color-brand-500: #67727f;
+  --color-brand-600: #525c68;
+  --color-brand-700: #434b55;
+  --color-brand-800: #3a4049;
+  --color-brand-900: #23272d;
+  --color-brand-950: #14171b;
+
+  /* Accent: used sparingly for offers, prices and highlights */
+  --color-accent-50: #fff8ed;
+  --color-accent-100: #ffefd4;
+  --color-accent-200: #ffdba8;
+  --color-accent-300: #ffc071;
+  --color-accent-400: #ff9c38;
+  --color-accent-500: #fd7f12;
+  --color-accent-600: #ee6408;
+  --color-accent-700: #c54a09;
+  --color-accent-800: #9c3a10;
+  --color-accent-900: #7e3210;
+
+  /*
+   * Navy — the secondary brand colour. Used by toasts and available as the
+   * alternate button colour a Super Admin can switch the shop to.
+   */
+  --color-navy-50: #eef2fb;
+  --color-navy-100: #d8e1f5;
+  --color-navy-200: #b3c4ea;
+  --color-navy-300: #7f9bd9;
+  --color-navy-400: #4f70c0;
+  --color-navy-500: #2f4da3;
+  --color-navy-600: #1f3a8a;
+  --color-navy-700: #1a2f6f;
+  --color-navy-800: #16265a;
+  --color-navy-900: #101b3f;
+  --color-navy-950: #0a1229;
+
+  /* Semantic */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f8f9;
+  --color-surface-sunken: #f1f3f5;
+  --color-line: #e4e7eb;
+  --color-line-strong: #d3d8de;
+
+  /* Typography — Latin + Bengali capable stack */
+  --font-sans: "Inter", "Hind Siliguri", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Noto Sans Bengali", "SolaimanLipi", Arial, sans-serif;
+  --font-display: "Inter", "Hind Siliguri", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Radii */
+  --radius-tm: 0.625rem;
+  --radius-tm-lg: 0.875rem;
+  --radius-tm-xl: 1.125rem;
+
+  /* Elevation */
+  --shadow-tm-xs: 0 1px 2px 0 rgb(16 20 26 / 0.05);
+  --shadow-tm-sm: 0 1px 3px 0 rgb(16 20 26 / 0.08), 0 1px 2px -1px rgb(16 20 26 / 0.06);
+  --shadow-tm-md: 0 4px 12px -2px rgb(16 20 26 / 0.09), 0 2px 6px -2px rgb(16 20 26 / 0.05);
+  --shadow-tm-lg: 0 12px 32px -8px rgb(16 20 26 / 0.14), 0 4px 10px -4px rgb(16 20 26 / 0.06);
+
+  /* Layout */
+  --spacing-header: 4rem;
+  --container-page: 80rem;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-surface-muted);
+    color: var(--color-brand-900);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.018em;
+    color: var(--color-brand-950);
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* Consistent, always-visible keyboard focus (accessibility requirement) */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-700);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Remove number-input spinners so quantity fields look intentional */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] { -moz-appearance: textfield; }
+
+  ::selection {
+    background-color: var(--color-brand-900);
+    color: #fff;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   BASE PRIMITIVES (@utility)
+   Tailwind v4 can only `@apply` real utilities, so every primitive that other
+   component classes build on is registered here. This is what lets a page
+   write `.btn-primary` instead of repeating fifteen utility classes.
+   ========================================================================== */
+@utility tm-container {
+  @apply mx-auto w-full max-w-[80rem] px-4 sm:px-6 lg:px-8;
+}
+
+@utility btn {
+  @apply inline-flex select-none items-center justify-center gap-2 rounded-[var(--radius-tm)]
+         border border-transparent px-4 py-2.5 text-sm font-semibold leading-none
+         transition-[background-color,border-color,color,box-shadow,transform] duration-150
+         disabled:pointer-events-none disabled:opacity-55;
+  &:active:not(:disabled) {
+    transform: translateY(0.5px);
+  }
+}
+
+@utility card {
+  @apply rounded-[var(--radius-tm-lg)] border border-line bg-white shadow-[var(--shadow-tm-sm)];
+  /*
+   * A grid or flex child defaults to min-width:auto, meaning it refuses to
+   * shrink below its content. A card holding a wide table therefore pushes its
+   * whole column past the viewport instead of letting .table-wrap scroll — so
+   * on a phone the entire dashboard scrolls sideways. A card should never
+   * widen what contains it.
+   */
+  min-width: 0;
+}
+
+@utility input {
+  @apply w-full rounded-[var(--radius-tm)] border border-line-strong bg-white px-3 py-2.5
+         text-sm text-brand-900 shadow-[var(--shadow-tm-xs)] transition-colors
+         placeholder:text-brand-400
+         focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-900/10
+         disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-brand-500
+         aria-[invalid=true]:border-danger-500 aria-[invalid=true]:ring-danger-500/15;
+}
+
+@utility checkbox {
+  @apply h-4 w-4 shrink-0 cursor-pointer rounded border-line-strong text-brand-900
+         accent-[var(--color-brand-900)] focus:ring-2 focus:ring-brand-900/20;
+}
+
+@utility badge {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.6875rem]
+         font-bold uppercase tracking-wide;
+}
+
+@utility alert {
+  @apply flex items-start gap-3 rounded-[var(--radius-tm)] border px-4 py-3 text-sm leading-relaxed;
+}
+
+@utility status-pill {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.6875rem]
+         font-bold uppercase tracking-wide;
+}
+
+@utility chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5
+         text-xs font-semibold text-brand-700 transition-colors hover:border-brand-400 hover:bg-brand-50;
+}
+
+@utility page-link {
+  @apply inline-flex h-9 min-w-9 items-center justify-center rounded-[var(--radius-tm)] border
+         border-line bg-white px-2.5 text-sm font-semibold text-brand-700 transition-colors
+         hover:border-brand-400 hover:bg-brand-50;
+}
+
+/*
+ * Vertical navigation on a light surface: the account area, the shop filters,
+ * the storefront dropdown and the mobile menu. The dashboard's dark rail uses
+ * `rail-link` instead — these two must stay separate, because colours legible
+ * on white are invisible on near-black and vice versa.
+ */
+@utility sidebar-link {
+  @apply flex items-center gap-2.5 rounded-[var(--radius-tm)] px-3 py-2 text-sm
+         font-medium text-brand-700 transition-colors
+         hover:bg-brand-100 hover:text-brand-950;
+}
+
+/* The dashboard's dark navigation rail. */
+@utility rail-link {
+  @apply relative flex items-center gap-2.5 rounded-[var(--radius-tm)] px-3 py-2
+         text-[0.8125rem] font-medium text-brand-300 transition-colors
+         hover:bg-white/10 hover:text-white;
+}
+
+@utility nav-link {
+  @apply rounded-md px-3 py-2 text-sm font-medium text-brand-700 transition-colors
+         hover:bg-brand-100 hover:text-brand-950;
+}
+
+@utility tab {
+  @apply whitespace-nowrap border-b-2 border-transparent px-3.5 py-2.5 text-sm font-semibold
+         text-brand-500 transition-colors hover:text-brand-900;
+}
+
+@utility variant-option {
+  @apply cursor-pointer rounded-[var(--radius-tm)] border border-line-strong bg-white px-3.5 py-2
+         text-sm font-semibold text-brand-700 transition-all hover:border-brand-500;
+}
+
+/* ==========================================================================
+   COMPONENT LAYER
+   Every repeated UI pattern in Trust Mart lives here as a single class so a
+   page never has to repeat a long utility string. Compose with utilities
+   only for one-off tweaks.
+   ========================================================================== */
+@layer components {
+
+  /* ---------- Layout ---------------------------------------------------- */
+  .tm-container-narrow {
+    @apply mx-auto w-full max-w-3xl px-4 sm:px-6;
+  }
+  .section {
+    @apply py-10 sm:py-14;
+  }
+  .section-tight {
+    @apply py-6 sm:py-8;
+  }
+  .section-head {
+    @apply mb-6 flex flex-wrap items-end justify-between gap-3;
+  }
+  .section-title {
+    @apply text-xl font-bold tracking-tight sm:text-2xl;
+  }
+  .section-subtitle {
+    @apply mt-1 text-sm text-brand-500;
+  }
+  .page-header {
+    @apply mb-6 border-b border-line pb-4;
+  }
+  .page-title {
+    @apply text-2xl font-bold tracking-tight sm:text-3xl;
+  }
+  .page-desc {
+    @apply mt-1.5 text-sm text-brand-500;
+  }
+  .stack {
+    @apply flex flex-col gap-4;
+  }
+  .row-between {
+    @apply flex items-center justify-between gap-3;
+  }
+  .grid-products {
+    @apply grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4;
+  }
+  .grid-cards {
+    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  .grid-stats {
+    @apply grid gap-3 sm:grid-cols-2 lg:grid-cols-4;
+  }
+  .grid-form-2 {
+    @apply grid gap-4 sm:grid-cols-2;
+  }
+  .grid-form-3 {
+    @apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  /* ---------- Buttons --------------------------------------------------- */
+  /* Primary: the stylish graphite/gray button called for in the PRD */
+  .btn-primary {
+    @apply btn bg-brand-900 text-white shadow-[var(--shadow-tm-xs)]
+           hover:bg-brand-800 active:bg-brand-950;
+  }
+  .btn-secondary {
+    @apply btn border-line-strong bg-white text-brand-800 shadow-[var(--shadow-tm-xs)]
+           hover:border-brand-300 hover:bg-brand-50;
+  }
+  /*
+   * The shop's alternate colour, picked in Business settings. Reads from the
+   * --color-secondary-* tokens ThemeTokens writes, so switching the setting
+   * re-skins every one of these at once.
+   */
+  .btn-alt {
+    @apply btn text-white shadow-[var(--shadow-tm-xs)];
+    background-color: var(--color-secondary-700);
+  }
+  .btn-alt:hover:not(:disabled) {
+    background-color: var(--color-secondary-800);
+  }
+  .btn-alt-soft {
+    @apply btn;
+    background-color: var(--color-secondary-50);
+    color: var(--color-secondary-800);
+    border-color: var(--color-secondary-200);
+  }
+  .btn-alt-soft:hover:not(:disabled) {
+    background-color: var(--color-secondary-100);
+  }
+
+  .btn-outline {
+    @apply btn border-brand-900 bg-transparent text-brand-900 hover:bg-brand-900 hover:text-white;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-brand-700 hover:bg-brand-100;
+  }
+  .btn-accent {
+    @apply btn bg-accent-600 text-white shadow-[var(--shadow-tm-xs)] hover:bg-accent-700;
+  }
+  .btn-danger {
+    @apply btn bg-danger-600 text-white hover:bg-danger-700;
+  }
+  .btn-danger-soft {
+    @apply btn bg-danger-50 text-danger-700 hover:bg-danger-100;
+  }
+  .btn-success {
+    @apply btn bg-success-600 text-white hover:bg-success-700;
+  }
+  .btn-xs {
+    @apply px-2.5 py-1.5 text-xs rounded-md gap-1.5;
+  }
+  .btn-sm {
+    @apply px-3 py-2 text-[0.8125rem];
+  }
+  .btn-lg {
+    @apply px-6 py-3.5 text-base;
+  }
+  .btn-block {
+    @apply w-full;
+  }
+  .btn-icon {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-tm)]
+           border border-line bg-white text-brand-600 transition-colors
+           hover:border-brand-300 hover:bg-brand-50 hover:text-brand-900
+           disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-link {
+    @apply inline-flex items-center gap-1 text-sm font-semibold text-brand-900 underline-offset-4 hover:underline;
+  }
+
+  /* ---------- Cards / surfaces ------------------------------------------ */
+  .card-flat {
+    @apply rounded-[var(--radius-tm-lg)] border border-line bg-white;
+  }
+  .card-hover {
+    @apply card transition-shadow duration-200 hover:shadow-[var(--shadow-tm-md)];
+  }
+  .card-header {
+    @apply flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3.5 sm:px-5;
+  }
+  .card-title {
+    @apply text-base font-semibold tracking-tight;
+  }
+  .card-body {
+    @apply p-4 sm:p-5;
+  }
+  .card-footer {
+    @apply flex flex-wrap items-center justify-end gap-2 border-t border-line bg-surface-muted px-4 py-3 sm:px-5;
+  }
+  .panel {
+    @apply rounded-[var(--radius-tm)] border border-line bg-surface-muted p-4;
+  }
+  .surface {
+    @apply rounded-[var(--radius-tm-lg)] bg-white p-4 sm:p-6;
+  }
+
+  /* ---------- Forms ----------------------------------------------------- */
+  .field {
+    @apply flex flex-col gap-1.5;
+  }
+  .label {
+    @apply text-[0.8125rem] font-semibold text-brand-800;
+  }
+  .label-req::after {
+    content: " *";
+    color: var(--color-danger-600);
+  }
+  .textarea {
+    @apply input min-h-28 resize-y py-2.5 leading-relaxed;
+  }
+  .select {
+    @apply input appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2367727f' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.7rem center;
+    background-size: 1rem;
+  }
+  .radio {
+    @apply checkbox rounded-full;
+  }
+  .check-row {
+    @apply flex cursor-pointer items-start gap-2.5 rounded-[var(--radius-tm)] border border-line
+           bg-white px-3 py-2.5 text-sm transition-colors hover:border-brand-300 hover:bg-brand-50/60;
+  }
+  .check-row-active {
+    @apply border-brand-800 bg-brand-50 ring-1 ring-brand-900/10;
+  }
+  .form-hint {
+    @apply text-xs leading-relaxed text-brand-500;
+  }
+  .form-error {
+    @apply text-xs font-medium text-danger-600;
+  }
+  .fieldset {
+    @apply space-y-4 rounded-[var(--radius-tm-lg)] border border-line bg-white p-4 sm:p-5;
+  }
+  .fieldset-legend {
+    @apply mb-1 text-sm font-bold uppercase tracking-wide text-brand-500;
+  }
+  .input-affix {
+    @apply flex items-stretch overflow-hidden rounded-[var(--radius-tm)] border border-line-strong bg-white
+           focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-900/10;
+  }
+  .input-affix > .input {
+    @apply border-0 shadow-none focus:ring-0;
+  }
+  .input-affix-text {
+    @apply flex items-center bg-surface-sunken px-3 text-sm font-medium text-brand-600;
+  }
+  .switch {
+    @apply relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full
+           bg-brand-300 transition-colors has-checked:bg-brand-900;
+  }
+  .switch-dot {
+    @apply pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform;
+  }
+
+  /* ---------- Badges & status ------------------------------------------- */
+  .badge-gray    { @apply badge bg-brand-100 text-brand-700; }
+  .badge-dark    { @apply badge bg-brand-900 text-white; }
+  .badge-green   { @apply badge bg-success-100 text-success-700; }
+  .badge-red     { @apply badge bg-danger-100 text-danger-700; }
+  .badge-amber   { @apply badge bg-warning-100 text-warning-700; }
+  .badge-blue    { @apply badge bg-info-100 text-info-700; }
+  .badge-accent  { @apply badge bg-accent-100 text-accent-700; }
+  .badge-outline { @apply badge border border-line-strong bg-white text-brand-600; }
+
+  .chip-active {
+    @apply border-brand-900 bg-brand-900 text-white hover:bg-brand-800 hover:text-white;
+  }
+
+  /* Type-ahead results under a search box (incoming stock, expense payee). */
+  .picker-results {
+    @apply max-h-56 overflow-y-auto rounded-[var(--radius-tm)] border border-line bg-white;
+  }
+  .picker-option {
+    @apply block w-full truncate border-b border-line px-3 py-2 text-left text-sm text-brand-800
+           transition-colors last:border-b-0 hover:bg-brand-50 hover:text-brand-950;
+  }
+
+  /* ---------- Tables ---------------------------------------------------- */
+  .table-wrap {
+    @apply w-full overflow-x-auto rounded-[var(--radius-tm-lg)] border border-line bg-white;
+  }
+  .table {
+    @apply w-full min-w-[40rem] border-collapse text-left text-sm;
+  }
+  .table thead th {
+    @apply whitespace-nowrap border-b border-line bg-surface-muted px-4 py-3
+           text-[0.6875rem] font-bold uppercase tracking-wider text-brand-500;
+  }
+  .table tbody td {
+    @apply border-b border-line px-4 py-3 align-middle text-brand-800;
+  }
+  .table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+  .table tbody tr:hover {
+    @apply bg-surface-muted/70;
+  }
+  .table-compact tbody td,
+  .table-compact thead th {
+    @apply px-3 py-2;
+  }
+  .td-num {
+    @apply whitespace-nowrap text-right font-medium tabular-nums;
+  }
+  .td-actions {
+    @apply whitespace-nowrap text-right;
+  }
+
+  /* ---------- Alerts ---------------------------------------------------- */
+  .alert-info    { @apply alert border-info-100 bg-info-50 text-info-700; }
+  .alert-success { @apply alert border-success-100 bg-success-50 text-success-700; }
+  .alert-warning { @apply alert border-warning-100 bg-warning-50 text-warning-700; }
+  .alert-danger  { @apply alert border-danger-100 bg-danger-50 text-danger-700; }
+  .alert-neutral { @apply alert border-line bg-surface-muted text-brand-700; }
+
+  /* ---------- Navigation ------------------------------------------------ */
+  .nav-link-active {
+    @apply bg-brand-100 text-brand-950;
+  }
+  .sidebar-link-active {
+    @apply bg-brand-900 font-semibold text-white hover:bg-brand-900 hover:text-white;
+  }
+  .sidebar-group-label {
+    @apply px-3 pb-1.5 pt-4 text-[0.6875rem] font-bold uppercase tracking-wider text-brand-400;
+  }
+
+  .rail-link-active {
+    @apply bg-white/12 font-semibold text-white hover:bg-white/12 hover:text-white;
+  }
+  /* A left marker, so the active item is not signalled by shading alone. */
+  .rail-link-active::before {
+    @apply absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-white content-[''];
+  }
+  .rail-group-label {
+    @apply px-3 pb-1.5 pt-5 text-[0.625rem] font-bold uppercase tracking-[0.12em] text-brand-500;
+  }
+  /* Count of items needing attention, shown against the dark rail. */
+  .rail-badge {
+    @apply ml-auto inline-flex min-w-5 items-center justify-center rounded-full
+           bg-accent-600 px-1.5 py-0.5 text-[0.625rem] font-bold leading-none text-white;
+  }
+  .breadcrumb {
+    @apply flex flex-wrap items-center gap-1.5 text-xs text-brand-500;
+  }
+  .breadcrumb a:hover {
+    @apply text-brand-900 underline underline-offset-2;
+  }
+  .tabs {
+    @apply flex gap-1 overflow-x-auto border-b border-line;
+  }
+  .tab-active {
+    @apply border-brand-900 text-brand-950;
+  }
+  /* Count beside a queue tab; a zero is muted so the eye skips it. */
+  .tab-count {
+    @apply ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5;
+    @apply bg-brand-900 text-[0.625rem] font-bold leading-none text-white;
+  }
+  .tab-count-empty {
+    @apply bg-brand-100 text-brand-500;
+  }
+  /* Work that is waiting on someone — drafts pending review. */
+  .tab-count-alert {
+    @apply bg-accent-600 text-white;
+  }
+  .pagination {
+    @apply flex flex-wrap items-center justify-center gap-1.5;
+  }
+  .page-link-active {
+    @apply border-brand-900 bg-brand-900 text-white hover:bg-brand-900 hover:text-white;
+  }
+  .page-link-disabled {
+    @apply pointer-events-none opacity-45;
+  }
+
+  /* ---------- Commerce -------------------------------------------------- */
+  /* Add `group` alongside this class in markup to enable the hover effects
+     on .product-media / .product-title. */
+  .product-card {
+    @apply relative flex h-full flex-col overflow-hidden rounded-[var(--radius-tm-lg)]
+           border border-line bg-white transition-shadow duration-200 hover:shadow-[var(--shadow-tm-md)];
+  }
+  .product-media {
+    @apply relative aspect-square w-full overflow-hidden bg-surface-sunken;
+  }
+  .product-media img {
+    @apply h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04];
+  }
+  .product-body {
+    @apply flex flex-1 flex-col gap-1.5 p-3;
+  }
+  .product-title {
+    @apply line-clamp-2 text-sm font-semibold leading-snug text-brand-900 group-hover:text-brand-700;
+  }
+  .price {
+    @apply text-base font-bold tracking-tight text-brand-950;
+  }
+  .price-old {
+    @apply text-sm font-medium text-brand-400 line-through;
+  }
+  .price-lg {
+    @apply text-2xl font-bold tracking-tight text-brand-950;
+  }
+  .discount-pill {
+    @apply absolute left-2 top-2 z-10 rounded-full bg-danger-600 px-2 py-1 text-[0.625rem]
+           font-bold uppercase tracking-wide text-white shadow;
+  }
+  .stock-in    { @apply text-xs font-semibold text-success-600; }
+  .stock-low   { @apply text-xs font-semibold text-warning-600; }
+  .stock-out   { @apply text-xs font-semibold text-danger-600; }
+  .qty-control {
+    @apply inline-flex items-center overflow-hidden rounded-[var(--radius-tm)] border border-line-strong bg-white;
+  }
+  .qty-btn {
+    @apply flex h-9 w-9 items-center justify-center text-lg font-semibold text-brand-600
+           transition-colors hover:bg-brand-100 disabled:opacity-40;
+  }
+  .qty-value {
+    @apply flex h-9 w-12 items-center justify-center border-x border-line text-sm font-semibold tabular-nums;
+  }
+  .rating-stars {
+    @apply inline-flex items-center gap-0.5 text-accent-500;
+  }
+  .summary-row {
+    @apply flex items-center justify-between py-1.5 text-sm text-brand-600;
+  }
+  .summary-row-total {
+    @apply mt-1.5 flex items-center justify-between border-t border-line pt-3 text-base font-bold text-brand-950;
+  }
+  .variant-option-active {
+    @apply border-brand-900 bg-brand-900 text-white;
+  }
+  .variant-option-disabled {
+    @apply cursor-not-allowed border-dashed border-line bg-surface-sunken text-brand-400 line-through
+           hover:border-line;
+  }
+
+  /* ---------- Dashboard ------------------------------------------------- */
+  .stat-card {
+    @apply rounded-[var(--radius-tm-lg)] border border-line bg-white p-4 shadow-[var(--shadow-tm-xs)];
+  }
+  .stat-label {
+    @apply text-xs font-semibold uppercase tracking-wide text-brand-500;
+  }
+  .stat-value {
+    @apply mt-1.5 text-2xl font-bold tracking-tight text-brand-950 tabular-nums;
+  }
+  .stat-delta-up   { @apply text-xs font-semibold text-success-600; }
+  .stat-delta-down { @apply text-xs font-semibold text-danger-600; }
+  .toolbar {
+    @apply mb-4 flex flex-wrap items-center gap-2;
+  }
+  .filter-bar {
+    @apply mb-4 flex flex-wrap items-end gap-3 rounded-[var(--radius-tm-lg)] border border-line
+           bg-white p-3 sm:p-4;
+  }
+
+  /* ---------- Feedback states ------------------------------------------- */
+  .empty-state {
+    @apply flex flex-col items-center justify-center gap-2 rounded-[var(--radius-tm-lg)]
+           border border-dashed border-line-strong bg-white px-6 py-14 text-center;
+  }
+  .empty-title {
+    @apply text-base font-semibold text-brand-800;
+  }
+  .empty-desc {
+    @apply max-w-sm text-sm text-brand-500;
+  }
+  .skeleton {
+    @apply animate-pulse rounded-[var(--radius-tm)] bg-brand-100;
+  }
+  .spinner {
+    @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent;
+  }
+  .divider {
+    @apply my-5 h-px w-full bg-line;
+  }
+  .divider-text {
+    @apply my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-brand-400
+           before:h-px before:flex-1 before:bg-line after:h-px after:flex-1 after:bg-line;
+  }
+
+  /* ---------- Typography helpers ---------------------------------------- */
+  .muted      { @apply text-sm text-brand-500; }
+  .muted-xs   { @apply text-xs text-brand-500; }
+  /*
+   * The wrapping matters as much as the font: inline code is where the long
+   * unbreakable strings live — COURIER_PATHAO_WEBHOOK_SECRET, a full webhook
+   * URL — and one of those pushes its column past a 320px viewport, scrolling
+   * the whole page sideways.
+   *
+   * `anywhere` rather than `break-word`: only `anywhere` reduces the element's
+   * min-content width, and it is the min-content width that a grid or flex
+   * parent sizes itself to. `break-word` alone lets the string wrap but leaves
+   * the container just as wide, which is why the overflow survived it.
+   */
+  .mono {
+    @apply font-mono text-xs tracking-tight;
+    overflow-wrap: anywhere;
+  }
+  .clamp-1    { @apply line-clamp-1; }
+  .clamp-2    { @apply line-clamp-2; }
+  .clamp-3    { @apply line-clamp-3; }
+  .link       { @apply font-medium text-brand-900 underline-offset-4 hover:underline; }
+
+  /* ---------- Category card (homepage "Shop by category") --------------- */
+  .category-card {
+    @apply block overflow-hidden rounded-[var(--radius-tm-lg)] border border-line bg-white
+           transition-all hover:border-brand-300 hover:shadow-[var(--shadow-tm-md)];
+  }
+  .category-card-media {
+    @apply aspect-square w-full overflow-hidden bg-surface-sunken;
+  }
+  .category-card-body {
+    @apply px-2.5 py-2 text-center;
+  }
+  .category-card-name {
+    @apply line-clamp-2 text-xs font-semibold leading-snug text-brand-900 sm:text-sm;
+  }
+
+  /* ---------- Proportion bar (spend by category, stock cover) ----------- */
+  .meter {
+    @apply block h-1.5 w-full overflow-hidden rounded-full bg-brand-100;
+  }
+  .meter-fill {
+    @apply block h-full rounded-full bg-brand-700;
+  }
+  .meter-fill-positive {
+    @apply bg-success-600;
+  }
+
+  /* ---------- Timeline (order history, parcel journey) ------------------ */
+  .timeline {
+    @apply relative space-y-4 border-l border-line pl-5;
+  }
+  .timeline-item {
+    @apply relative flex gap-2;
+  }
+  .timeline-dot {
+    @apply absolute -left-[1.4rem] top-1.5 h-2.5 w-2.5 rounded-full bg-brand-900;
+  }
+
+  /* ---------- Label/value list ------------------------------------------ */
+  .detail-list {
+    @apply space-y-1.5 text-sm;
+  }
+  .detail-list > div {
+    @apply flex flex-wrap items-baseline justify-between gap-2;
+  }
+  .detail-list dt {
+    @apply shrink-0 text-brand-500;
+  }
+  .detail-list dd {
+    @apply min-w-0 text-right font-medium text-brand-900;
+  }
+  .scroll-x   { @apply overflow-x-auto [scrollbar-width:thin]; }
+
+  /* CMS / policy page content rendered from the dashboard */
+  .cms-content {
+    @apply text-[0.9375rem] leading-7 text-brand-700;
+  }
+  .cms-content h2 { @apply mt-8 mb-3 text-xl font-bold text-brand-950; }
+  .cms-content h3 { @apply mt-6 mb-2 text-lg font-bold text-brand-900; }
+  .cms-content p  { @apply mb-4; }
+  .cms-content ul { @apply mb-4 list-disc space-y-1.5 pl-5; }
+  .cms-content ol { @apply mb-4 list-decimal space-y-1.5 pl-5; }
+  .cms-content a  { @apply font-medium text-brand-900 underline underline-offset-4; }
+  .cms-content strong { @apply font-semibold text-brand-950; }
+  .cms-content table { @apply mb-4 w-full border-collapse text-sm; }
+  .cms-content th, .cms-content td { @apply border border-line px-3 py-2 text-left; }
+
+  /* ---------- Print (packing invoice) ----------------------------------- */
+  .print-sheet {
+    @apply mx-auto max-w-3xl bg-white p-8 text-[13px] leading-relaxed text-black;
+  }
+}
+
+/* ==========================================================================
+   ORDER STATUS COLOUR MAP
+   One class per lifecycle state so status pills stay consistent everywhere.
+   ========================================================================== */
+@layer components {
+  .status-pending          { @apply status-pill bg-brand-100 text-brand-700; }
+  .status-confirmed        { @apply status-pill bg-info-100 text-info-700; }
+  .status-processing       { @apply status-pill bg-info-100 text-info-700; }
+  .status-packed           { @apply status-pill bg-accent-100 text-accent-700; }
+  .status-shipped          { @apply status-pill bg-accent-100 text-accent-700; }
+  .status-out_for_delivery { @apply status-pill bg-accent-100 text-accent-700; }
+  .status-delivered        { @apply status-pill bg-success-100 text-success-700; }
+  .status-cancelled        { @apply status-pill bg-brand-200 text-brand-700; }
+  .status-rejected         { @apply status-pill bg-danger-100 text-danger-700; }
+  .status-returned         { @apply status-pill bg-warning-100 text-warning-700; }
+  .status-refunded         { @apply status-pill bg-warning-100 text-warning-700; }
+  .status-failed           { @apply status-pill bg-danger-100 text-danger-700; }
+  .status-fraud_review     { @apply status-pill bg-danger-600 text-white; }
+  .status-unpaid           { @apply status-pill bg-brand-100 text-brand-700; }
+  .status-paid             { @apply status-pill bg-success-100 text-success-700; }
+  .status-partially_paid   { @apply status-pill bg-warning-100 text-warning-700; }
+  .status-draft            { @apply status-pill bg-brand-100 text-brand-600; }
+  .status-published        { @apply status-pill bg-success-100 text-success-700; }
+  .status-archived         { @apply status-pill bg-brand-200 text-brand-700; }
+  .status-active           { @apply status-pill bg-success-100 text-success-700; }
+  .status-inactive         { @apply status-pill bg-brand-200 text-brand-600; }
+  .status-suspended        { @apply status-pill bg-danger-100 text-danger-700; }
+}
+
+/* ==========================================================================
+   ANIMATION
+   ========================================================================== */
+@keyframes tm-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes tm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-up { animation: tm-fade-up 0.24s ease-out both; }
+.animate-fade-in { animation: tm-fade-in 0.2s ease-out both; }
+
+/* ---------------------------------------------------------------------------
+ * "or" divider between a social button and a form
+ * ------------------------------------------------------------------------ */
+@layer components {
+  .divider-text {
+    @apply relative my-1 text-center;
+  }
+  .divider-text::before {
+    @apply absolute left-0 top-1/2 h-px w-full bg-line content-[''];
+  }
+  .divider-text > span {
+    @apply relative bg-white px-3 text-xs font-medium uppercase tracking-wide text-brand-400;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Password field with reveal toggle
+ * ------------------------------------------------------------------------ */
+@layer components {
+  .password-field { @apply relative; }
+
+  .password-toggle {
+    @apply absolute right-1 top-1/2 -translate-y-1/2 rounded-[var(--radius-tm)] p-2;
+    @apply text-brand-500 transition hover:bg-brand-100 hover:text-brand-800;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Floating WhatsApp launcher
+ * ------------------------------------------------------------------------ */
+@layer components {
+  .whatsapp-fab {
+    @apply fixed bottom-5 left-5 z-40 flex size-13 items-center justify-center rounded-full;
+    @apply bg-[#25d366] text-white shadow-[var(--shadow-tm-lg)] transition;
+    @apply hover:scale-105 hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2;
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-fab { @apply hover:scale-100; }
+}
+
+/* ---------------------------------------------------------------------------
+ * Navigation dropdown panel
+ *
+ * Text here sits on white, so it uses the same dark ink as body copy rather
+ * than a muted grey — a menu label at 40% contrast is unreadable before you
+ * hover it, and hover is not available on a touch screen at all.
+ * ------------------------------------------------------------------------ */
+@layer components {
+  .menu-panel {
+    @apply rounded-[var(--radius-tm-lg)] border border-line bg-white p-2 shadow-[var(--shadow-tm-lg)];
+  }
+
+  .menu-item {
+    @apply flex items-center gap-2 rounded-[var(--radius-tm)] px-3 py-2.5 text-sm
+           text-brand-800 transition-colors hover:bg-brand-100 hover:text-brand-950;
+  }
+
+  .menu-item-label { @apply block truncate font-medium; }
+
+  .menu-item-description {
+    @apply mt-0.5 block truncate text-xs text-brand-500;
+  }
+
+  /* The chevron only appears on approach, so a long list stays calm. */
+  .menu-item-arrow {
+    @apply shrink-0 text-brand-400 opacity-0 transition-opacity;
+  }
+  .menu-item:hover .menu-item-arrow,
+  .menu-item:focus-visible .menu-item-arrow {
+    @apply opacity-100;
+  }
+
+  .menu-panel-footer {
+    @apply mt-1 flex items-center justify-center gap-1 rounded-[var(--radius-tm)] border-t border-line
+           px-3 py-2.5 text-xs font-semibold text-brand-700 transition-colors
+           hover:bg-brand-100 hover:text-brand-950;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Slide-over drawer (mini cart, mobile menu)
+ *
+ * Fixed to the viewport rather than positioned near its trigger, so nothing
+ * can push it off screen on a narrow phone. The panel is capped with `svh`
+ * (small viewport height) so a mobile browser's collapsing address bar cannot
+ * hide the checkout button behind it.
+ * ------------------------------------------------------------------------ */
+@layer components {
+  .drawer-root {
+    @apply fixed inset-0 z-50;
+  }
+  .drawer-scrim {
+    @apply absolute inset-0 bg-brand-950/50;
+    animation: tm-fade-in 0.18s ease-out both;
+  }
+  .drawer-panel {
+    @apply absolute inset-y-0 right-0 flex w-[min(26rem,100vw)] flex-col bg-white shadow-[var(--shadow-tm-lg)];
+    animation: tm-slide-in-right 0.22s ease-out both;
+  }
+  .drawer-panel-left {
+    @apply left-0 right-auto;
+    animation: tm-slide-in-left 0.22s ease-out both;
+  }
+  .drawer-header {
+    @apply flex shrink-0 items-start justify-between gap-3 border-b border-line px-4 py-3;
+  }
+  .drawer-body {
+    @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
+  }
+  .drawer-footer {
+    @apply shrink-0 border-t border-line bg-white px-4 py-3;
+  }
+  .drawer-line {
+    @apply flex gap-3 px-4 py-3;
+  }
+
+  /* Count on the cart icon. Accent rather than red: a full cart is good news. */
+  .cart-badge {
+    @apply absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full
+           bg-accent-600 px-1 text-[0.625rem] font-bold text-white;
+  }
+}
+
+@keyframes tm-slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes tm-slide-in-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer-panel,
+  .drawer-scrim {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Notification dropdown
+ * ------------------------------------------------------------------------ */
+@layer components {
+  /*
+   * On a phone the bell sits between the menu button and the cart, so
+   * anchoring a 22rem panel to it pushes most of it off the left edge. Below
+   * `sm` the panel is pinned to the viewport instead of the trigger; from `sm`
+   * up it becomes a normal dropdown and the alignment modifiers take over.
+   */
+  .notification-panel {
+    @apply fixed inset-x-3 top-[4.25rem] z-50 overflow-hidden;
+    @apply rounded-[var(--radius-tm-lg)] border border-brand-200 bg-white shadow-[var(--shadow-tm-lg)];
+    animation: tm-fade-up 0.16s ease-out both;
+  }
+
+  @media (min-width: 40rem) {
+    .notification-panel {
+      @apply absolute inset-x-auto top-full mt-2 w-[min(22rem,calc(100vw-2rem))];
+    }
+    .notification-panel-right { @apply right-0; }
+    .notification-panel-left  { @apply left-0; }
+  }
+
+  .notification-panel-header {
+    @apply flex items-center justify-between gap-2 border-b border-brand-200 px-4 py-2.5 text-sm;
+  }
+
+  /* Capped against the viewport, not a fixed pixel height: 24rem of list on a
+     short phone screen pushes the last entries under the fold with no way to
+     reach them. */
+  .notification-list { @apply max-h-[min(24rem,60vh)] divide-y divide-brand-100 overflow-y-auto; }
+
+  .notification-item {
+    @apply flex flex-col gap-0.5 px-4 py-3 text-sm transition hover:bg-brand-50;
+  }
+
+  .notification-title { @apply font-semibold text-brand-900; }
+  .notification-body  { @apply line-clamp-2 text-xs text-brand-600; }
+  .notification-time  { @apply text-[0.6875rem] text-brand-400; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notification-panel { animation: none; }
+}
+
+/* ---------------------------------------------------------------------------
+ * Toasts
+ *
+ * Navy ground with near-white text, so the tone stripe carries the meaning
+ * without colour alone doing the work — each toast also has an icon and, for
+ * errors, an assertive live region.
+ * ------------------------------------------------------------------------ */
+@layer components {
+  .toast-viewport {
+    @apply pointer-events-none fixed inset-x-0 bottom-0 z-[100] flex flex-col items-center gap-2 p-4;
+    @apply sm:inset-x-auto sm:right-0 sm:top-0 sm:bottom-auto sm:items-end;
+  }
+
+  .toast {
+    @apply pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-[var(--radius-tm-lg)] px-4 py-3;
+    @apply border border-white/10 bg-navy-900 text-navy-50 shadow-[var(--shadow-tm-lg)];
+    animation: tm-fade-up 0.2s ease-out both;
+  }
+
+  .toast-icon {
+    @apply mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-bold;
+  }
+
+  .toast-success .toast-icon { @apply bg-success-500 text-white; }
+  .toast-error   .toast-icon { @apply bg-danger-500 text-white; }
+  .toast-info    .toast-icon { @apply bg-info-500 text-white; }
+
+  /* A left stripe repeats the tone for anyone who cannot separate the hues. */
+  .toast-success { @apply border-l-4 border-l-success-500; }
+  .toast-error   { @apply border-l-4 border-l-danger-500; }
+  .toast-info    { @apply border-l-4 border-l-info-500; }
+
+  .toast-body    { @apply min-w-0 flex-1; }
+  .toast-message { @apply text-sm font-semibold leading-snug; }
+  .toast-detail  { @apply mt-0.5 text-xs leading-snug text-navy-200; }
+
+  .toast-close {
+    @apply -mr-1 -mt-1 rounded p-1 text-lg leading-none text-navy-300 transition;
+    @apply hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: none; }
+}
+
+/* Printing: only the invoice sheet should reach the printer. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff !important; }
+  .print-sheet { box-shadow: none !important; max-width: none !important; padding: 0 !important; }
+  @page { margin: 12mm; }
+}

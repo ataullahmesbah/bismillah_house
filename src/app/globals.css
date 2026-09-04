@@ -609,6 +609,66 @@
     @apply pointer-events-none opacity-45;
   }
 
+  /* ---------- Blog ------------------------------------------------------ */
+  /* Add `group` alongside .blog-card in markup for the hover effects. */
+  .blog-card {
+    @apply relative flex h-full flex-col overflow-hidden rounded-[var(--radius-tm-lg)]
+           border border-line bg-white transition-shadow duration-200
+           hover:shadow-[var(--shadow-tm-md)];
+  }
+  .blog-media {
+    @apply relative aspect-[16/9] w-full overflow-hidden bg-surface-sunken;
+  }
+  .blog-media img {
+    @apply h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04];
+  }
+  /* Stands in for a cover image so a card without one is still a card, not a
+     collapsed box with the text jammed against the top. */
+  .blog-media-empty {
+    @apply flex items-center justify-center bg-gradient-to-br from-brand-100 to-brand-200
+           text-2xl font-black uppercase tracking-widest text-brand-400;
+  }
+  .blog-body {
+    @apply flex flex-1 flex-col gap-2 p-4;
+  }
+  .blog-title {
+    @apply line-clamp-2 text-base font-bold leading-snug text-brand-950 group-hover:text-brand-700;
+  }
+  .blog-excerpt {
+    @apply line-clamp-3 text-sm leading-relaxed text-brand-600;
+  }
+  .blog-meta {
+    @apply mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-1 text-xs text-brand-500;
+  }
+  .blog-kicker {
+    @apply inline-flex w-fit items-center rounded-full bg-brand-100 px-2.5 py-1
+           text-[0.6875rem] font-bold uppercase tracking-wider text-brand-700;
+  }
+  .blog-grid {
+    @apply grid gap-5 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  /* The lead article: one wide card on desktop, an ordinary stacked one below. */
+  .blog-feature {
+    @apply grid overflow-hidden rounded-[var(--radius-tm-lg)] border border-line bg-white
+           transition-shadow duration-200 hover:shadow-[var(--shadow-tm-md)] lg:grid-cols-2;
+  }
+  .blog-feature-media {
+    @apply relative aspect-[16/10] w-full overflow-hidden bg-surface-sunken lg:aspect-auto lg:h-full;
+  }
+  .blog-feature-body {
+    @apply flex flex-col justify-center gap-3 p-6 lg:p-8;
+  }
+  /* Article page. A measured column: 68ch is about 12 words a line, which is
+     where reading speed peaks — the container is wider than that on purpose so
+     figures and code blocks can still breach the text column. */
+  .article-body {
+    @apply mx-auto max-w-[68ch];
+  }
+  .article-tag {
+    @apply inline-flex items-center rounded-full border border-line px-3 py-1 text-xs
+           font-medium text-brand-600 transition-colors hover:border-brand-400 hover:text-brand-900;
+  }
+
   /* ---------- Commerce -------------------------------------------------- */
   /* Add `group` alongside this class in markup to enable the hover effects
      on .product-media / .product-title. */
@@ -631,8 +691,10 @@
   .price {
     @apply text-base font-bold tracking-tight text-brand-950;
   }
+  /* brand-400 on white is 3.2:1 — below the 4.5:1 WCAG AA needs for text this
+     size. brand-500 is 4.9:1 and still reads as clearly secondary. */
   .price-old {
-    @apply text-sm font-medium text-brand-400 line-through;
+    @apply text-sm font-medium text-brand-500 line-through;
   }
   .price-lg {
     @apply text-2xl font-bold tracking-tight text-brand-950;
@@ -641,7 +703,7 @@
     @apply absolute left-2 top-2 z-10 rounded-full bg-danger-600 px-2 py-1 text-[0.625rem]
            font-bold uppercase tracking-wide text-white shadow;
   }
-  .stock-in    { @apply text-xs font-semibold text-success-600; }
+  .stock-in    { @apply text-xs font-semibold text-success-700; }
   .stock-low   { @apply text-xs font-semibold text-warning-600; }
   .stock-out   { @apply text-xs font-semibold text-danger-600; }
   .qty-control {
@@ -681,7 +743,7 @@
   .stat-value {
     @apply mt-1.5 text-2xl font-bold tracking-tight text-brand-950 tabular-nums;
   }
-  .stat-delta-up   { @apply text-xs font-semibold text-success-600; }
+  .stat-delta-up   { @apply text-xs font-semibold text-success-700; }
   .stat-delta-down { @apply text-xs font-semibold text-danger-600; }
   .toolbar {
     @apply mb-4 flex flex-wrap items-center gap-2;
@@ -838,6 +900,28 @@
   .status-active           { @apply status-pill bg-success-100 text-success-700; }
   .status-inactive         { @apply status-pill bg-brand-200 text-brand-600; }
   .status-suspended        { @apply status-pill bg-danger-100 text-danger-700; }
+
+  /* Parcel journey. Every ShipmentStatus needs one, or the pill falls back to
+     bare text and a table shows some statuses styled and some not. */
+  .status-created          { @apply status-pill bg-brand-100 text-brand-700; }
+  .status-pickup_pending   { @apply status-pill bg-brand-100 text-brand-700; }
+  .status-picked           { @apply status-pill bg-info-100 text-info-700; }
+  .status-in_transit       { @apply status-pill bg-info-100 text-info-700; }
+  .status-at_hub           { @apply status-pill bg-info-100 text-info-700; }
+  .status-at_destination   { @apply status-pill bg-accent-100 text-accent-700; }
+  .status-hold             { @apply status-pill bg-warning-100 text-warning-700; }
+
+  /* Settlement and incoming stock. */
+  .status-partial          { @apply status-pill bg-warning-100 text-warning-700; }
+  .status-received         { @apply status-pill bg-success-100 text-success-700; }
+  .status-disputed         { @apply status-pill bg-danger-100 text-danger-700; }
+  .status-expected         { @apply status-pill bg-info-100 text-info-700; }
+
+  /* AI drafting. */
+  .status-running          { @apply status-pill bg-info-100 text-info-700; }
+  .status-ready            { @apply status-pill bg-success-100 text-success-700; }
+  .status-applied          { @apply status-pill bg-success-100 text-success-700; }
+  .status-discarded        { @apply status-pill bg-brand-200 text-brand-600; }
 }
 
 /* ==========================================================================

@@ -329,13 +329,13 @@ export function CheckoutForm({
             <div className="border-t border-line pt-2">
               <div className="summary-row"><span>Subtotal</span><span>{formatMoney(cart.quote.subtotal)}</span></div>
               {cart.quote.flashDiscount > 0 ? (
-                <div className="summary-row text-success-600"><span>Flash sale</span><span>−{formatMoney(cart.quote.flashDiscount)}</span></div>
+                <div className="summary-row text-success-700"><span>Flash sale</span><span>−{formatMoney(cart.quote.flashDiscount)}</span></div>
               ) : null}
               {cart.quote.offerDiscount > 0 ? (
-                <div className="summary-row text-success-600"><span>Offer</span><span>−{formatMoney(cart.quote.offerDiscount)}</span></div>
+                <div className="summary-row text-success-700"><span>Offer</span><span>−{formatMoney(cart.quote.offerDiscount)}</span></div>
               ) : null}
               {cart.quote.couponDiscount > 0 ? (
-                <div className="summary-row text-success-600">
+                <div className="summary-row text-success-700">
                   <span>Coupon {cart.quote.coupon?.code}</span><span>−{formatMoney(cart.quote.couponDiscount)}</span>
                 </div>
               ) : null}
@@ -344,7 +344,7 @@ export function CheckoutForm({
                 <span>{cart.quote.shipping.total === 0 ? "Free" : formatMoney(cart.quote.shipping.total)}</span>
               </div>
               {cart.quote.shipping.freeReason ? (
-                <p className="text-xs font-medium text-success-600">{cart.quote.shipping.freeReason}</p>
+                <p className="text-xs font-medium text-success-700">{cart.quote.shipping.freeReason}</p>
               ) : null}
               <div className="summary-row-total"><span>Total payable</span><span>{formatMoney(cart.quote.grandTotal)}</span></div>
             </div>

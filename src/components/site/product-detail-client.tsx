@@ -106,7 +106,8 @@ export function ProductPurchasePanel({ product }: { product: ProductDetail }) {
               src={images[activeImage]}
               alt={product.images[activeImage]?.alt ?? product.name}
               fill
-              priority
+              preload
+              fetchPriority="high"
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-contain"
             />
@@ -238,7 +239,7 @@ export function ProductPurchasePanel({ product }: { product: ProductDetail }) {
 
         <div className="panel space-y-1.5 text-xs text-brand-600">
           {product.shippingMode === "FREE" ? (
-            <p className="font-semibold text-success-600">✓ Free delivery on this product</p>
+            <p className="font-semibold text-success-700">✓ Free delivery on this product</p>
           ) : product.shippingMode === "FIXED" && product.shippingFlatFee ? (
             <p>Delivery charge for this product: <strong>{formatMoney(product.shippingFlatFee)}</strong></p>
           ) : (

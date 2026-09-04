@@ -46,7 +46,12 @@ export function Price({
 export function Rating({ value, count, showCount = true }: { value: number; count?: number; showCount?: boolean }) {
   const rounded = Math.round(value * 2) / 2;
   return (
-    <span className="inline-flex items-center gap-1.5" aria-label={`Rated ${value.toFixed(1)} out of 5`}>
+    /*
+     * `role="img"` is required, not decoration: ARIA forbids aria-label on a
+     * plain span, which has no role, and a screen reader is entitled to ignore
+     * it — leaving the rating as five unlabelled decorative stars.
+     */
+    <span role="img" className="inline-flex items-center gap-1.5" aria-label={`Rated ${value.toFixed(1)} out of 5`}>
       <span className="rating-stars" aria-hidden="true">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star key={star} filled={rounded >= star} half={rounded === star - 0.5} />

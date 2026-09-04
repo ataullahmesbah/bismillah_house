@@ -125,4 +125,7 @@ export const AUDIT_ACTIONS = {
   FINANCE_VOIDED: "finance.transaction.voided",
   AI_DRAFT_CREATED: "ai.draft.created",
   AI_DRAFT_APPLIED: "ai.draft.applied",
+  BLOG_POST_SAVED: "blog.post.saved",
+  BLOG_POST_PUBLISHED: "blog.post.published",
+  BLOG_POST_DELETED: "blog.post.deleted",
 } as const;

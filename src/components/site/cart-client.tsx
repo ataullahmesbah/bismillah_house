@@ -50,7 +50,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
             {line.variantName ? <p className="muted-xs">{line.variantName}</p> : null}
             {line.badge ? <span className="badge-red mt-1">{line.badge}</span> : null}
             {line.shippingMode === "FREE" ? (
-              <p className="text-xs font-semibold text-success-600">Free delivery</p>
+              <p className="text-xs font-semibold text-success-700">Free delivery</p>
             ) : null}
             {!line.isAvailable ? <p className="form-error mt-1">{line.unavailableReason}</p> : null}
             <button type="button" onClick={remove} className="btn-link mt-1 text-xs text-danger-600" disabled={pending}>
@@ -93,7 +93,7 @@ export function CartLineRow({ line }: { line: CartLineView }) {
       <td className="td-num font-semibold">
         {formatMoney(line.lineTotal)}
         {line.couponDiscount > 0 ? (
-          <span className="block text-xs font-normal text-success-600">
+          <span className="block text-xs font-normal text-success-700">
             −{formatMoney(line.couponDiscount)} coupon
           </span>
         ) : null}

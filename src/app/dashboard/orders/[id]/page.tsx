@@ -160,13 +160,13 @@ export default async function DashboardOrderDetailPage({ params }: { params: Par
               <div className="ml-auto w-full max-w-xs">
                 <div className="summary-row"><span>Subtotal</span><span>{formatMoney(order.subtotal)}</span></div>
                 {order.itemDiscountTotal > 0 ? (
-                  <div className="summary-row text-success-600"><span>Flash sale</span><span>−{formatMoney(order.itemDiscountTotal)}</span></div>
+                  <div className="summary-row text-success-700"><span>Flash sale</span><span>−{formatMoney(order.itemDiscountTotal)}</span></div>
                 ) : null}
                 {order.offerDiscount > 0 ? (
-                  <div className="summary-row text-success-600"><span>Offer</span><span>−{formatMoney(order.offerDiscount)}</span></div>
+                  <div className="summary-row text-success-700"><span>Offer</span><span>−{formatMoney(order.offerDiscount)}</span></div>
                 ) : null}
                 {order.couponDiscount > 0 ? (
-                  <div className="summary-row text-success-600">
+                  <div className="summary-row text-success-700">
                     <span>Coupon {order.couponCode}</span><span>−{formatMoney(order.couponDiscount)}</span>
                   </div>
                 ) : null}
@@ -195,7 +195,7 @@ export default async function DashboardOrderDetailPage({ params }: { params: Par
                   ))}
                 </ul>
                 {shippingSnapshot.freeReason ? (
-                  <p className="mt-2 text-xs font-semibold text-success-600">{shippingSnapshot.freeReason}</p>
+                  <p className="mt-2 text-xs font-semibold text-success-700">{shippingSnapshot.freeReason}</p>
                 ) : null}
                 <p className="form-hint mt-2">
                   This snapshot is what the customer was charged, preserved exactly as calculated at checkout.
@@ -336,33 +336,33 @@ export default async function DashboardOrderDetailPage({ params }: { params: Par
             shipment={
               shipment
                 ? {
-                    id: shipment.id,
-                    courierName: shipment.courierName,
-                    trackingNumber: shipment.trackingNumber,
-                    trackingUrl: shipment.trackingUrl,
-                    consignmentId: shipment.consignmentId,
-                    status: shipment.status,
-                    currentLocation: shipment.currentLocation,
-                    deliveryManName: shipment.deliveryManName,
-                    deliveryManPhone: shipment.deliveryManPhone,
-                    estimatedDeliveryAt: shipment.estimatedDeliveryAt,
-                    pickupAt: shipment.pickupAt,
-                    deliveredAt: shipment.deliveredAt,
-                    courierCharge: shipment.courierCharge,
-                    collectedAmount: shipment.collectedAmount,
-                    settledAmount: shipment.settledAmount,
-                    settlementStatus: shipment.settlementStatus,
-                    lastSyncedAt: shipment.lastSyncedAt,
-                    syncError: shipment.syncError,
-                    events: shipment.events.map((event) => ({
-                      id: event.id,
-                      status: event.status,
-                      description: event.description,
-                      location: event.location,
-                      occurredAt: event.occurredAt,
-                      source: event.source,
-                    })),
-                  }
+                  id: shipment.id,
+                  courierName: shipment.courierName,
+                  trackingNumber: shipment.trackingNumber,
+                  trackingUrl: shipment.trackingUrl,
+                  consignmentId: shipment.consignmentId,
+                  status: shipment.status,
+                  currentLocation: shipment.currentLocation,
+                  deliveryManName: shipment.deliveryManName,
+                  deliveryManPhone: shipment.deliveryManPhone,
+                  estimatedDeliveryAt: shipment.estimatedDeliveryAt,
+                  pickupAt: shipment.pickupAt,
+                  deliveredAt: shipment.deliveredAt,
+                  courierCharge: shipment.courierCharge,
+                  collectedAmount: shipment.collectedAmount,
+                  settledAmount: shipment.settledAmount,
+                  settlementStatus: shipment.settlementStatus,
+                  lastSyncedAt: shipment.lastSyncedAt,
+                  syncError: shipment.syncError,
+                  events: shipment.events.map((event) => ({
+                    id: event.id,
+                    status: event.status,
+                    description: event.description,
+                    location: event.location,
+                    occurredAt: event.occurredAt,
+                    source: event.source,
+                  })),
+                }
                 : null
             }
           />

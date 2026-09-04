@@ -48,7 +48,7 @@ export default async function AiProductsPage() {
         action={<Link href="/dashboard/products/new" className="btn-secondary">Add by hand</Link>}
       />
 
-      <div className="stat-grid mb-4">
+      <div className="grid-stats mb-4">
         <StatCard label="Requests this month" value={usage.used} hint={`Budget ${usage.budget}`} />
         <StatCard label="Remaining" value={usage.remaining} />
         <StatCard label="Mode" value={settings.productMode} hint="Set in Settings → AI" />
@@ -71,7 +71,7 @@ export default async function AiProductsPage() {
                 <li key={provider.key}>
                   <strong>{provider.label}</strong>{" "}
                   {provider.configured ? (
-                    <span className="text-success-600">ready</span>
+                    <span className="text-success-700">ready</span>
                   ) : (
                     <>
                       needs <code className="mono">{provider.key.toUpperCase()}_API_KEY</code> —{" "}

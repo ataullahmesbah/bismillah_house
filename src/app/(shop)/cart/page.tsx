@@ -72,19 +72,19 @@ export default async function CartPage({ searchParams }: { searchParams: SearchP
                 <span>{formatMoney(quote.subtotal)}</span>
               </div>
               {quote.flashDiscount > 0 ? (
-                <div className="summary-row text-success-600">
+                <div className="summary-row text-success-700">
                   <span>Flash sale discount</span>
                   <span>−{formatMoney(quote.flashDiscount)}</span>
                 </div>
               ) : null}
               {quote.offerDiscount > 0 ? (
-                <div className="summary-row text-success-600">
+                <div className="summary-row text-success-700">
                   <span>Offer discount</span>
                   <span>−{formatMoney(quote.offerDiscount)}</span>
                 </div>
               ) : null}
               {quote.couponDiscount > 0 ? (
-                <div className="summary-row text-success-600">
+                <div className="summary-row text-success-700">
                   <span>Coupon {quote.coupon?.code}</span>
                   <span>−{formatMoney(quote.couponDiscount)}</span>
                 </div>

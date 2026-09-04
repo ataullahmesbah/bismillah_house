@@ -366,7 +366,7 @@ export function CartDrawer({ initialCount }: { initialCount: number }) {
                       </span>
                     </div>
                     {cart.discountTotal > 0 ? (
-                      <div className="row-between text-success-600">
+                      <div className="row-between text-success-700">
                         <span>Discounts</span>
                         <span className="tabular-nums">
                           −{formatMoney(cart.discountTotal)}

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { prisma, safeQuery } from "@/lib/db";
+import { listPublishedSlugs } from "@/lib/services/blog";
 import { getSettings } from "@/lib/settings";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -15,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const settings = await getSettings();
   if (!settings.seo.robotsIndex) return [];
 
-  const [products, categories, brands, pages] = await Promise.all([
+  const [products, categories, brands, pages, posts] = await Promise.all([
     safeQuery(() => prisma.product.findMany({
       where: { status: "PUBLISHED", deletedAt: null, noIndex: false },
       select: { slug: true, updatedAt: true },
@@ -37,6 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: { slug: true, updatedAt: true },
       take: 200,
     }), [], "sitemapPages"),
+    listPublishedSlugs(),
   ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -46,6 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl("/help"), changeFrequency: "monthly", priority: 0.5 },
     { url: absoluteUrl("/faq"), changeFrequency: "monthly", priority: 0.6 },
     { url: absoluteUrl("/contact"), changeFrequency: "monthly", priority: 0.5 },
+    { url: absoluteUrl("/blog"), changeFrequency: "weekly", priority: 0.7 },
   ];
 
   return [
@@ -73,6 +76,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: page.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.5,
+    })),
+    ...posts.map((post) => ({
+      url: absoluteUrl(`/blog/${post.slug}`),
+      lastModified: post.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
     })),
   ];
 }

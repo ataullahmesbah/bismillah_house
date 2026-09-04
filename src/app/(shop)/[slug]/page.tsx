@@ -19,7 +19,7 @@ type Params = Promise<{ slug: string }>;
 const RESERVED = new Set([
   "shop", "cart", "checkout", "search", "product", "category", "track-order",
   "help", "faq", "contact", "login", "register", "account", "dashboard", "api",
-  "order-confirmation", "forgot-password", "reset-password",
+  "order-confirmation", "forgot-password", "reset-password", "blog",
 ]);
 
 async function loadPage(slug: string) {
@@ -50,7 +50,12 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const [page, settings] = await Promise.all([loadPage(slug), getSettings()]);
-  if (!page) return { title: "Page not found" };
+  if (!page) {
+    // A missing resource streams as HTTP 200, so this metadata is what a
+    // crawler acts on. Without an explicit noindex it inherits the site
+    // default of "index, follow" and the soft 404 gets indexed.
+    return { title: "Page not found", robots: { index: false, follow: false } };
+  }
 
   return buildMetadata(settings.seo, {
     title: page.seoTitle ?? page.title,

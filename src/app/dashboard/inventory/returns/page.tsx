@@ -56,7 +56,7 @@ export default async function ReturnsPage({ searchParams }: { searchParams: Sear
       />
       <InventoryTabs active="/dashboard/inventory/returns" />
 
-      <div className="stat-grid mb-4">
+      <div className="grid-stats mb-4">
         <StatCard label="Units returned to stock" value={returned._sum?.quantityChange ?? 0} />
         <StatCard label="Return entries" value={total} />
         <StatCard label="Open return requests" value={requests} href="/dashboard/orders?status=RETURNED" />
@@ -89,7 +89,7 @@ export default async function ReturnsPage({ searchParams }: { searchParams: Sear
                     </Link>
                     {movement.variant ? <span className="muted-xs block">{movement.variant.name}</span> : null}
                   </td>
-                  <td className="td-num text-success-600">+{movement.quantityChange}</td>
+                  <td className="td-num text-success-700">+{movement.quantityChange}</td>
                   <td className="td-num">{movement.quantityAfter}</td>
                   <td className="text-xs clamp-2">{movement.reason ?? "—"}</td>
                   <td className="text-xs">

@@ -58,7 +58,7 @@ export default async function CashFlowPage({ searchParams }: { searchParams: Sea
         to={range.to.toISOString().slice(0, 10)}
       />
 
-      <div className="stat-grid mb-4">
+      <div className="grid-stats mb-4">
         <StatCard label="Money in" value={formatMoney(totalIn)} />
         <StatCard label="Money out" value={formatMoney(totalOut)} />
         <StatCard
@@ -96,9 +96,9 @@ export default async function CashFlowPage({ searchParams }: { searchParams: Sea
                         <span className="meter-fill" style={{ width: `${(point.expense / peak) * 100}%` }} />
                       </span>
                     </td>
-                    <td className="td-num text-success-600">{point.income > 0 ? formatMoney(point.income) : "—"}</td>
+                    <td className="td-num text-success-700">{point.income > 0 ? formatMoney(point.income) : "—"}</td>
                     <td className="td-num text-danger-600">{point.expense > 0 ? formatMoney(point.expense) : "—"}</td>
-                    <td className={`td-num ${point.net >= 0 ? "text-success-600" : "text-danger-600"}`}>
+                    <td className={`td-num ${point.net >= 0 ? "text-success-700" : "text-danger-600"}`}>
                       {formatMoney(point.net)}
                     </td>
                     <td className="td-num font-semibold">{formatMoney(point.running)}</td>

@@ -56,7 +56,7 @@ export default async function FinanceOverviewPage({ searchParams }: { searchPara
         to={range.to.toISOString().slice(0, 10)}
       />
 
-      <div className="stat-grid mb-4">
+      <div className="grid-stats mb-4">
         <StatCard label="Income" value={formatMoney(summary.income)} />
         <StatCard label="Expenses" value={formatMoney(summary.expense)} />
         <StatCard
@@ -156,7 +156,7 @@ export default async function FinanceOverviewPage({ searchParams }: { searchPara
                     <td
                       className={`td-num ${
                         entry.kind === "INCOME"
-                          ? "text-success-600"
+                          ? "text-success-700"
                           : entry.kind === "EXPENSE"
                             ? "text-danger-600"
                             : "text-brand-600"

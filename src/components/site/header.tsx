@@ -61,7 +61,8 @@ export async function SiteHeader() {
                 width={140}
                 height={36}
                 className="h-9 w-auto object-contain"
-                priority
+                preload
+                fetchPriority="high"
               />
             ) : (
               <span className="text-lg font-extrabold tracking-tight text-brand-950">

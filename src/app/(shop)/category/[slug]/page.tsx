@@ -36,7 +36,12 @@ async function loadCategory(slug: string) {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const [category, settings] = await Promise.all([loadCategory(slug), getSettings()]);
-  if (!category) return { title: "Category not found" };
+  if (!category) {
+    // A missing resource streams as HTTP 200, so this metadata is what a
+    // crawler acts on. Without an explicit noindex it inherits the site
+    // default of "index, follow" and the soft 404 gets indexed.
+    return { title: "Category not found", robots: { index: false, follow: false } };
+  }
 
   return buildMetadata(settings.seo, {
     title: category.seoTitle ?? `${category.name} — buy online`,
@@ -98,7 +103,8 @@ export default async function CategoryPage({ params, searchParams }: { params: P
             fill
             sizes="100vw"
             className="object-cover"
-            priority
+            preload
+            fetchPriority="high"
           />
         </div>
       ) : null}

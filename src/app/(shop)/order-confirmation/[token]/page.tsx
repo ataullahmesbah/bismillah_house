@@ -51,7 +51,7 @@ export default async function OrderConfirmationPage({ params }: { params: Params
       <div className="mx-auto max-w-3xl">
         <div className="card text-center">
           <div className="card-body">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-success-100 text-success-600">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-success-100 text-success-700">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="m5 13 4 4L19 7" />
               </svg>
@@ -96,12 +96,12 @@ export default async function OrderConfirmationPage({ params }: { params: Params
             <div className="mt-4 border-t border-line pt-3">
               <div className="summary-row"><span>Subtotal</span><span>{formatMoney(order.subtotal)}</span></div>
               {order.itemDiscountTotal + order.offerDiscount > 0 ? (
-                <div className="summary-row text-success-600">
+                <div className="summary-row text-success-700">
                   <span>Offers</span><span>−{formatMoney(order.itemDiscountTotal + order.offerDiscount)}</span>
                 </div>
               ) : null}
               {order.couponDiscount > 0 ? (
-                <div className="summary-row text-success-600"><span>Coupon</span><span>−{formatMoney(order.couponDiscount)}</span></div>
+                <div className="summary-row text-success-700"><span>Coupon</span><span>−{formatMoney(order.couponDiscount)}</span></div>
               ) : null}
               <div className="summary-row">
                 <span>Delivery — {order.districtName}</span>

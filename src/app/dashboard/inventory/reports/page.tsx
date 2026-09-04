@@ -52,7 +52,7 @@ export default async function InventoryReportsPage() {
       />
       <InventoryTabs active="/dashboard/inventory/reports" />
 
-      <div className="stat-grid mb-4">
+      <div className="grid-stats mb-4">
         <StatCard label="Stock value at cost" value={formatMoney(totals.stockValueCost)} />
         <StatCard label="Stock value at retail" value={formatMoney(totals.stockValueRetail)} />
         <StatCard
@@ -78,7 +78,7 @@ export default async function InventoryReportsPage() {
                     <tr key={row.type}>
                       <td>{MOVEMENT_TYPE_LABELS[row.type]}</td>
                       <td className="td-num">{row._count._all}</td>
-                      <td className={`td-num ${(row._sum.quantityChange ?? 0) < 0 ? "text-danger-600" : "text-success-600"}`}>
+                      <td className={`td-num ${(row._sum.quantityChange ?? 0) < 0 ? "text-danger-600" : "text-success-700"}`}>
                         {(row._sum.quantityChange ?? 0) > 0 ? "+" : ""}{row._sum.quantityChange ?? 0}
                       </td>
                     </tr>

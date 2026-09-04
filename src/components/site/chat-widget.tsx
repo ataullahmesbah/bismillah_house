@@ -63,11 +63,16 @@ export function ChatWidget({ assistantName, greeting }: { assistantName: string;
           type="button"
           onClick={() => setOpen(true)}
           className="btn-primary fixed bottom-4 right-4 z-40 shadow-[var(--shadow-tm-lg)]"
-          aria-label={`Open ${assistantName}`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" aria-hidden="true">
             <path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8Z" strokeLinejoin="round" />
           </svg>
+          {/*
+            No aria-label. The visible text below is already the accessible
+            name, and an aria-label of "Open …" would replace it — leaving a
+            voice-control user saying "click Ask Trust Assistant" with a button
+            that does not answer to what it says (WCAG 2.5.3, Label in Name).
+          */}
           Ask {assistantName}
         </button>
       ) : (

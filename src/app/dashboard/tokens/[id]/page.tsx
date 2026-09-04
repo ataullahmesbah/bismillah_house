@@ -118,7 +118,7 @@ export default async function TokenDetailPage({ params }: { params: Promise<{ id
               <ul className="space-y-2">
                 {token.assignees.map((assignee) => (
                   <li key={assignee.user.id} className="flex items-center gap-2 text-sm">
-                    <span className={assignee.doneAt ? "text-success-600" : "text-brand-400"} aria-hidden="true">
+                    <span className={assignee.doneAt ? "text-success-700" : "text-brand-400"} aria-hidden="true">
                       {assignee.doneAt ? "✓" : "○"}
                     </span>
                     <span className="min-w-0 flex-1 truncate">

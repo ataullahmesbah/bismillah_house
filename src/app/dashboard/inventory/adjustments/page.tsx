@@ -124,7 +124,7 @@ export default async function AdjustmentsPage({ searchParams }: { searchParams: 
                         <span className="badge-outline">{MOVEMENT_TYPE_LABELS[row.type]}</span>
                         {row.reason ? <span className="muted-xs block clamp-2">{row.reason}</span> : null}
                       </td>
-                      <td className={`td-num ${row.quantityChange < 0 ? "text-danger-600" : "text-success-600"}`}>
+                      <td className={`td-num ${row.quantityChange < 0 ? "text-danger-600" : "text-success-700"}`}>
                         {row.quantityChange > 0 ? "+" : ""}{row.quantityChange}
                       </td>
                       <td className="td-num">{row.quantityAfter}</td>

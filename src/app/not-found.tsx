@@ -1,4 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+/*
+ * The 404 body streams inside the layout, so the response has already gone out
+ * as HTTP 200 by the time this renders and Next cannot swap the status. That
+ * makes this metadata the only thing telling a crawler not to index it — and
+ * without it the page inherits the site default of "index, follow", which is
+ * how "We couldn't find that page" ends up in search results.
+ */
+export const metadata: Metadata = {
+  title: "Page not found",
+  robots: { index: false, follow: false },
+};
 
 export default function NotFound() {
   return (

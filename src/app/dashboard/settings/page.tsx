@@ -218,7 +218,7 @@ export default async function BusinessSettingsPage() {
                     <code className="mono">NEXT_PUBLIC_TURNSTILE_SITE_KEY</code> +{" "}
                     <code className="mono">TURNSTILE_SECRET_KEY</code> —{" "}
                     {turnstileReady ? (
-                      <span className="font-semibold text-success-600">present</span>
+                      <span className="font-semibold text-success-700">present</span>
                     ) : (
                       <>
                         missing.{" "}
@@ -237,7 +237,7 @@ export default async function BusinessSettingsPage() {
                     <code className="mono">GOOGLE_CLIENT_ID</code> +{" "}
                     <code className="mono">GOOGLE_CLIENT_SECRET</code> —{" "}
                     {googleReady ? (
-                      <span className="font-semibold text-success-600">present</span>
+                      <span className="font-semibold text-success-700">present</span>
                     ) : (
                       <>
                         missing.{" "}
@@ -403,7 +403,7 @@ export default async function BusinessSettingsPage() {
                     <li key={provider.key}>
                       <code className="mono">{provider.key.toUpperCase()}_API_KEY</code> — {provider.label}{" "}
                       {provider.configured ? (
-                        <span className="font-semibold text-success-600">ready</span>
+                        <span className="font-semibold text-success-700">ready</span>
                       ) : (
                         <a href={provider.consoleUrl} target="_blank" rel="noopener noreferrer" className="link">
                           get a key

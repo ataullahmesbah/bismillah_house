@@ -38,7 +38,7 @@ export default async function InventoryOverviewPage() {
       />
       <InventoryTabs active="/dashboard/inventory" />
 
-      <div className="stat-grid">
+      <div className="grid-stats">
         <StatCard label="Products" value={totals.totalProducts} hint={`${totals.totalVariants} variants`} />
         <StatCard label="On hand" value={totals.onHandUnits} hint="Available + reserved" />
         <StatCard
@@ -85,7 +85,7 @@ export default async function InventoryOverviewPage() {
             </div>
             <div className="row-between border-t border-line pt-3">
               <span className="muted">Potential margin</span>
-              <span className="font-bold text-success-600">
+              <span className="font-bold text-success-700">
                 {formatMoney(Math.max(0, totals.stockValueRetail - totals.stockValueCost))}
               </span>
             </div>
@@ -142,7 +142,7 @@ export default async function InventoryOverviewPage() {
                     {movement.variant ? <span className="muted-xs block">{movement.variant.name}</span> : null}
                   </td>
                   <td><span className="badge-outline">{MOVEMENT_TYPE_LABELS[movement.type]}</span></td>
-                  <td className={`td-num ${movement.quantityChange < 0 ? "text-danger-600" : "text-success-600"}`}>
+                  <td className={`td-num ${movement.quantityChange < 0 ? "text-danger-600" : "text-success-700"}`}>
                     {movement.quantityChange > 0 ? "+" : ""}{movement.quantityChange}
                   </td>
                   <td className="td-num">{movement.quantityAfter}</td>

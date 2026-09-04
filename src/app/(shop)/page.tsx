@@ -45,7 +45,8 @@ async function HeroSection({ section }: { section: HomeSectionData }) {
                 src={hero.imageUrl}
                 alt={hero.alt ?? hero.title}
                 fill
-                priority
+                preload
+                fetchPriority="high"
                 sizes="(max-width: 1024px) 100vw, 66vw"
                 className="object-cover opacity-35"
               />

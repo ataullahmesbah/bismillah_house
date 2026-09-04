@@ -17,7 +17,12 @@ export const revalidate = 60;
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const [product, settings] = await Promise.all([getProductDetail(slug), getSettings()]);
-  if (!product) return { title: "Product not found" };
+  if (!product) {
+    // A missing resource streams as HTTP 200, so this metadata is what a
+    // crawler acts on. Without an explicit noindex it inherits the site
+    // default of "index, follow" and the soft 404 gets indexed.
+    return { title: "Product not found", robots: { index: false, follow: false } };
+  }
 
   return buildMetadata(settings.seo, {
     title: product.seoTitle ?? product.name,

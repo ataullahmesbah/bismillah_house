@@ -180,13 +180,13 @@ export default async function AccountOrderDetailPage({ params }: { params: Param
             <div className="card-body">
               <div className="summary-row"><span>Subtotal</span><span>{formatMoney(order.subtotal)}</span></div>
               {order.itemDiscountTotal > 0 ? (
-                <div className="summary-row text-success-600"><span>Flash sale</span><span>−{formatMoney(order.itemDiscountTotal)}</span></div>
+                <div className="summary-row text-success-700"><span>Flash sale</span><span>−{formatMoney(order.itemDiscountTotal)}</span></div>
               ) : null}
               {order.offerDiscount > 0 ? (
-                <div className="summary-row text-success-600"><span>Offer</span><span>−{formatMoney(order.offerDiscount)}</span></div>
+                <div className="summary-row text-success-700"><span>Offer</span><span>−{formatMoney(order.offerDiscount)}</span></div>
               ) : null}
               {order.couponDiscount > 0 ? (
-                <div className="summary-row text-success-600">
+                <div className="summary-row text-success-700">
                   <span>Coupon {order.couponCode}</span><span>−{formatMoney(order.couponDiscount)}</span>
                 </div>
               ) : null}

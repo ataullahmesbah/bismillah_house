@@ -51,7 +51,7 @@ export default async function ProfitLossPage({ searchParams }: { searchParams: S
         to={range.to.toISOString().slice(0, 10)}
       />
 
-      <div className="stat-grid mb-4">
+      <div className="grid-stats mb-4">
         <StatCard label="Revenue" value={formatMoney(summary.income)} />
         <StatCard label="Costs" value={formatMoney(summary.expense)} />
         <StatCard
@@ -82,7 +82,7 @@ export default async function ProfitLossPage({ searchParams }: { searchParams: S
               )}
               <tr className="font-bold">
                 <td>Total income</td>
-                <td className="td-num text-success-600">{formatMoney(summary.income)}</td>
+                <td className="td-num text-success-700">{formatMoney(summary.income)}</td>
               </tr>
 
               <tr className="bg-surface-muted">
@@ -105,7 +105,7 @@ export default async function ProfitLossPage({ searchParams }: { searchParams: S
 
               <tr className="border-t-2 border-line-strong text-base font-bold">
                 <td>Net {summary.netProfit >= 0 ? "profit" : "loss"}</td>
-                <td className={`td-num ${summary.netProfit >= 0 ? "text-success-600" : "text-danger-600"}`}>
+                <td className={`td-num ${summary.netProfit >= 0 ? "text-success-700" : "text-danger-600"}`}>
                   {formatMoney(Math.abs(summary.netProfit))}
                 </td>
               </tr>

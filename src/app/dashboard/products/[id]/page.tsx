@@ -147,7 +147,7 @@ export default async function EditProductPage({ params }: { params: Params }) {
                           {movement.reason ? <span className="muted-xs block">{movement.reason}</span> : null}
                         </td>
                         <td className="text-xs">{movement.type}</td>
-                        <td className={`td-num ${movement.quantityChange < 0 ? "text-danger-600" : "text-success-600"}`}>
+                        <td className={`td-num ${movement.quantityChange < 0 ? "text-danger-600" : "text-success-700"}`}>
                           {movement.quantityChange > 0 ? "+" : ""}{movement.quantityChange}
                         </td>
                         <td className="td-num">{movement.quantityAfter}</td>

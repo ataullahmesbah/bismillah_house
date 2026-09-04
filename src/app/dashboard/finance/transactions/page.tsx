@@ -147,7 +147,14 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
           </section>
         ) : null}
 
-        <section>
+        {/*
+          min-w-0 for the same reason the `card` utility sets it: a grid child
+          defaults to min-width:auto, so this section refuses to shrink below
+          the transaction table's intrinsic width and drags the whole dashboard
+          sideways on a phone — the table-wrap inside never gets the chance to
+          scroll on its own.
+        */}
+        <section className="min-w-0">
           <form method="get" className="card mb-4">
             <div className="card-body flex flex-wrap items-end gap-3">
               <div className="min-w-40 flex-1">
@@ -225,7 +232,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                       <td
                         className={`td-num ${
                           entry.kind === "INCOME"
-                            ? "text-success-600"
+                            ? "text-success-700"
                             : entry.kind === "EXPENSE"
                               ? "text-danger-600"
                               : "text-brand-600"

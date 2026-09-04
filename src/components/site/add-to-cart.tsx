@@ -150,7 +150,7 @@ export function AddToCartForm({
       {disabled && disabledReason ? <p className="form-hint">{disabledReason}</p> : null}
       {state.status === "error" ? <p className="form-error">{state.message}</p> : null}
       {state.status === "success" ? (
-        <p role="status" className="text-xs font-semibold text-success-600">
+        <p role="status" className="text-xs font-semibold text-success-700">
           Added to your cart.
         </p>
       ) : null}

@@ -120,7 +120,7 @@ export default async function MovementsPage({ searchParams }: { searchParams: Se
                     <span className="badge-outline">{MOVEMENT_TYPE_LABELS[movement.type]}</span>
                     {movement.reason ? <span className="muted-xs block clamp-2">{movement.reason}</span> : null}
                   </td>
-                  <td className={`td-num ${movement.quantityChange < 0 ? "text-danger-600" : "text-success-600"}`}>
+                  <td className={`td-num ${movement.quantityChange < 0 ? "text-danger-600" : "text-success-700"}`}>
                     {movement.quantityChange > 0 ? "+" : ""}{movement.quantityChange}
                   </td>
                   <td className="td-num">{movement.quantityAfter}</td>

@@ -69,6 +69,15 @@ export const PERMISSIONS = {
   CONTENT_MANAGE: "content.manage",
   NAVIGATION_MANAGE: "navigation.manage",
 
+  // Blog. Split the same way the catalogue is: writing an article and
+  // deciding it goes live are different jobs, and a writer holding only
+  // BLOG_WRITE can edit their own drafts and nobody else's.
+  BLOG_VIEW: "blog.view",
+  BLOG_WRITE: "blog.write",
+  BLOG_PUBLISH: "blog.publish",
+  BLOG_MANAGE_ALL: "blog.manage_all",
+  BLOG_DELETE: "blog.delete",
+
   // Platform
   SETTINGS_MANAGE: "settings.manage",
   SEO_MANAGE: "seo.manage",
@@ -171,6 +180,11 @@ export const PERMISSION_GROUPS: Array<{ group: string; permissions: Array<{ key:
       { key: PERMISSIONS.NOTIFICATION_SEND, label: "Send notifications" },
       { key: PERMISSIONS.CONTENT_MANAGE, label: "Manage pages, FAQ & homepage" },
       { key: PERMISSIONS.NAVIGATION_MANAGE, label: "Manage navigation & footer" },
+      { key: PERMISSIONS.BLOG_VIEW, label: "View blog posts" },
+      { key: PERMISSIONS.BLOG_WRITE, label: "Write & edit own blog posts" },
+      { key: PERMISSIONS.BLOG_PUBLISH, label: "Publish blog posts" },
+      { key: PERMISSIONS.BLOG_MANAGE_ALL, label: "Edit anyone's blog posts" },
+      { key: PERMISSIONS.BLOG_DELETE, label: "Delete blog posts" },
     ],
   },
   {
@@ -219,6 +233,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Exclude<Role, "SUPER_ADMIN" | "CUS
     PERMISSIONS.COUPON_MANAGE, PERMISSIONS.OFFER_MANAGE, PERMISSIONS.FLASH_SALE_MANAGE, PERMISSIONS.BANNER_MANAGE,
     PERMISSIONS.REVIEW_MODERATE, PERMISSIONS.MESSAGE_VIEW, PERMISSIONS.MESSAGE_REPLY, PERMISSIONS.NOTIFICATION_SEND,
     PERMISSIONS.CONTENT_MANAGE, PERMISSIONS.NAVIGATION_MANAGE,
+    PERMISSIONS.BLOG_VIEW, PERMISSIONS.BLOG_WRITE, PERMISSIONS.BLOG_PUBLISH,
+    PERMISSIONS.BLOG_MANAGE_ALL, PERMISSIONS.BLOG_DELETE,
     PERMISSIONS.SEO_MANAGE, PERMISSIONS.SHIPPING_MANAGE, PERMISSIONS.REPORT_VIEW,
     PERMISSIONS.TOKEN_VIEW, PERMISSIONS.TOKEN_CREATE, PERMISSIONS.TOKEN_ASSIGN, PERMISSIONS.TOKEN_CLOSE,
     PERMISSIONS.INVENTORY_VIEW, PERMISSIONS.INVENTORY_ADJUST, PERMISSIONS.INVENTORY_RECEIVE,
@@ -250,6 +266,10 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Exclude<Role, "SUPER_ADMIN" | "CUS
     // Sees what is in stock so they can answer "do you have this?", but
     // cannot move stock or see what anything cost us.
     PERMISSIONS.INVENTORY_VIEW,
+    // Writes articles and edits their own drafts. Publishing is an admin's
+    // call, the same way it is for a product.
+    PERMISSIONS.BLOG_VIEW,
+    PERMISSIONS.BLOG_WRITE,
   ],
 };
 

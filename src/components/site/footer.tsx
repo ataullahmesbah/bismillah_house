@@ -35,9 +35,34 @@ const SOCIAL_LABELS: Array<[keyof Awaited<ReturnType<typeof getSettings>>["socia
   ["whatsapp", "WhatsApp"],
 ];
 
+/** Shaped like a NavNode so it can sit in the same column as the CMS items. */
+const BLOG_LINK: NavNode = {
+  id: "static-blog",
+  label: "Blog",
+  href: "/blog",
+  description: null,
+  imageUrl: null,
+  iconName: null,
+  badgeText: null,
+  openInNewTab: false,
+  isMegaColumn: false,
+  children: [],
+};
+
 export async function SiteFooter() {
   const [settings, navigation] = await Promise.all([getSettings(), getSiteNavigation()]);
   const socials = SOCIAL_LABELS.filter(([key]) => settings.social[key]);
+
+  /*
+   * The blog is a real section of the site, so it belongs in the footer whether
+   * or not anyone has added it to the Company menu in the dashboard. Appending
+   * it here rather than relying on the seed means an existing installation
+   * gets the link too — and the `some` guard stops it appearing twice once
+   * someone does add it by hand.
+   */
+  const companyLinks = navigation.footerCompany.some((item) => item.href === "/blog")
+    ? navigation.footerCompany
+    : [...navigation.footerCompany, BLOG_LINK];
 
   return (
     <footer className="mt-12 border-t border-line bg-white">
@@ -93,7 +118,7 @@ export async function SiteFooter() {
 
           <FooterColumn title="Shop" items={navigation.footerShop} />
           <FooterColumn title="Help" items={navigation.footerHelp} />
-          <FooterColumn title="Company" items={navigation.footerCompany} />
+          <FooterColumn title="Company" items={companyLinks} />
         </div>
       </div>
 

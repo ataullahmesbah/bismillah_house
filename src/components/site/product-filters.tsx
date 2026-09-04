@@ -57,8 +57,11 @@ export function ProductFilters({ facets, lockedCategory }: { facets: FilterFacet
 
         <div className="card-body stack">
           <div className="field">
-            <span className="label">Sort by</span>
+            {/* A real <label htmlFor>, not a span: without the association the
+                select has no accessible name at all. */}
+            <label className="label" htmlFor="sort">Sort by</label>
             <select
+              id="sort"
               className="select"
               value={params.get("sort") ?? "newest"}
               onChange={(event) => apply({ sort: event.target.value })}

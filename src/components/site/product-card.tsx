@@ -45,7 +45,7 @@ export function ProductCard({ product, showQuickAdd = true }: { product: Product
           </div>
 
           {product.shippingMode === "FREE" ? (
-            <p className="text-xs font-semibold text-success-600">Free delivery</p>
+            <p className="text-xs font-semibold text-success-700">Free delivery</p>
           ) : null}
 
           {product.flashEndsAt ? (

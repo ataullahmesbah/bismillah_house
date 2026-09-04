@@ -20,6 +20,8 @@ import { PrismaPg } from "@prisma/adapter-pg";
 
 import { PrismaClient } from "../src/generated/prisma/client";
 import { BANGLADESH_DISTRICTS } from "./seed-data/districts";
+import { readingMinutes } from "../src/lib/sanitize";
+import { SEED_BLOG_CATEGORIES, SEED_BLOG_POSTS } from "./seed-data/blog";
 import { SEED_FAQS, SEED_PAGES } from "./seed-data/content";
 import { demoImage, isDemoImage, renderDemoImages } from "./seed-data/demo-images";
 
@@ -1100,6 +1102,7 @@ async function seedNavigation(categoryIds: Record<string, string>) {
 
     { menu: "FOOTER_COMPANY", label: "About us", type: "PAGE", pageSlug: "about", position: 0 },
     { menu: "FOOTER_COMPANY", label: "Contact", type: "INTERNAL", url: "/contact", position: 1 },
+    { menu: "FOOTER_COMPANY", label: "Blog", type: "INTERNAL", url: "/blog", position: 5 },
     { menu: "FOOTER_COMPANY", label: "Terms & conditions", type: "PAGE", pageSlug: "terms", position: 2 },
     { menu: "FOOTER_COMPANY", label: "Privacy policy", type: "PAGE", pageSlug: "privacy", position: 3 },
     { menu: "FOOTER_COMPANY", label: "Refund policy", type: "PAGE", pageSlug: "refund-policy", position: 4 },
@@ -1424,6 +1427,53 @@ async function seedDemoOrders(users: Record<string, string>) {
   console.log("  ✓ 2 demo orders with invoices, 1 saved address");
 }
 
+async function seedBlog(authorId: string, authorName: string) {
+  const categoryIds: Record<string, string> = {};
+  for (const category of SEED_BLOG_CATEGORIES) {
+    const row = await prisma.blogCategory.upsert({
+      where: { slug: category.slug },
+      create: category,
+      // Deliberately empty. Re-running the seed must not overwrite a name or
+      // description the owner rewrote.
+      update: {},
+      select: { id: true },
+    });
+    categoryIds[category.slug] = row.id;
+  }
+
+  const day = 86_400_000;
+  for (const post of SEED_BLOG_POSTS) {
+    const publishedAt = new Date(Date.now() - post.daysAgo * day);
+    await prisma.blogPost.upsert({
+      where: { slug: post.slug },
+      create: {
+        slug: post.slug,
+        title: post.title,
+        subtitle: post.subtitle,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverImageUrl: demoImage(post.title, 1200),
+        coverImageAlt: post.title,
+        categoryId: categoryIds[post.categorySlug] ?? null,
+        tags: [...post.tags],
+        status: "PUBLISHED",
+        publishedAt,
+        isFeatured: post.isFeatured,
+        readingMinutes: readingMinutes(post.content),
+        seoTitle: post.seoTitle,
+        seoDescription: post.seoDescription,
+        authorId,
+        authorName,
+      },
+      // Same reasoning as the pages and products above: an owner who edited a
+      // seeded article must not have that edit reverted by a re-seed.
+      update: {},
+    });
+  }
+
+  console.log(`  ✓ ${SEED_BLOG_CATEGORIES.length} blog categories, ${SEED_BLOG_POSTS.length} articles`);
+}
+
 /* ========================================================================== */
 
 async function main() {
@@ -1451,6 +1501,7 @@ async function main() {
   await seedHomeSections();
   await seedTestimonials();
   await seedNavigation(categoryIds);
+  await seedBlog(superAdminId, DEMO.superAdmin.name);
   await seedDemoOrders(users);
 
   await refreshDemoImagery();

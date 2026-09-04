@@ -25,6 +25,25 @@ export type PageSeoInput = {
   canonical?: string | null;
 };
 
+/**
+ * The root layout sets a title template (`%s | Trust Mart` by default), which
+ * Next applies to every string title a page returns. That is right for "Shop
+ * all products" and wrong for a title that already carries the brand — the
+ * homepage default, a policy page called "Privacy Policy — Trust Mart", an
+ * article whose SEO title the editor ended with the shop name. Those came out
+ * as "… — Trust Mart | Trust Mart", which wastes the ~60 characters Google
+ * shows and reads as a mistake.
+ *
+ * Returning `{ absolute }` opts a single page out of the template. It is done
+ * here rather than at each call site so no page has to remember.
+ */
+function titleFor(seo: SeoSettings, raw: string): Metadata["title"] {
+  const brand = seo.organizationName.trim();
+  const alreadyBranded =
+    brand.length > 0 && raw.toLowerCase().includes(brand.toLowerCase());
+  return alreadyBranded ? { absolute: raw } : raw;
+}
+
 export function buildMetadata(seo: SeoSettings, input: PageSeoInput): Metadata {
   const title = input.title?.trim() || seo.defaultTitle;
   const description = truncate(
@@ -36,7 +55,7 @@ export function buildMetadata(seo: SeoSettings, input: PageSeoInput): Metadata {
   const index = seo.robotsIndex && !input.noIndex;
 
   return {
-    title,
+    title: titleFor(seo, title),
     description,
     alternates: { canonical },
     robots: {
@@ -151,12 +170,12 @@ export function productJsonLd(product: ProductJsonLdInput): Json {
     },
     ...(product.ratingCount > 0
       ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: product.ratingAverage.toFixed(1),
-            reviewCount: product.ratingCount,
-          },
-        }
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: product.ratingAverage.toFixed(1),
+          reviewCount: product.ratingCount,
+        },
+      }
       : {}),
   };
 }
@@ -183,6 +202,75 @@ export function faqJsonLd(faqs: Array<{ question: string; answer: string }>): Js
       "@type": "Question",
       name: faq.question,
       acceptedAnswer: { "@type": "Answer", text: stripHtml(faq.answer) },
+    })),
+  };
+}
+
+export type ArticleJsonLdInput = {
+  title: string;
+  description: string;
+  slug: string;
+  image?: string | null;
+  publishedAt: Date | null;
+  updatedAt: Date;
+  authorName?: string | null;
+  section?: string | null;
+  tags?: string[];
+  wordCount?: number;
+};
+
+/**
+ * `BlogPosting` for an article.
+ *
+ * `mainEntityOfPage` is what tells a crawler this markup describes the page it
+ * is on rather than something merely referenced from it — without it Google
+ * treats the block as a citation and the rich result does not appear.
+ */
+export function articleJsonLd(seo: SeoSettings, input: ArticleJsonLdInput): Json {
+  const url = absoluteUrl(`/blog/${input.slug}`);
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    headline: truncate(input.title, 110),
+    description: truncate(stripHtml(input.description), 300),
+    url,
+    ...(input.image ? { image: [absoluteUrl(input.image)] } : {}),
+    datePublished: (input.publishedAt ?? input.updatedAt).toISOString(),
+    dateModified: input.updatedAt.toISOString(),
+    author: { "@type": "Person", name: input.authorName || seo.organizationName },
+    publisher: {
+      "@type": "Organization",
+      name: seo.organizationName,
+      ...(seo.organizationLogo ? { logo: { "@type": "ImageObject", url: absoluteUrl(seo.organizationLogo) } } : {}),
+    },
+    ...(input.section ? { articleSection: input.section } : {}),
+    ...(input.tags?.length ? { keywords: input.tags.join(", ") } : {}),
+    ...(input.wordCount ? { wordCount: input.wordCount } : {}),
+    inLanguage: "en-BD",
+  };
+}
+
+/**
+ * The listing page itself. A `Blog` node with its posts listed lets an answer
+ * engine enumerate what is here without crawling every article first.
+ */
+export function blogJsonLd(
+  seo: SeoSettings,
+  posts: Array<{ slug: string; title: string; publishedAt: Date | null }>,
+): Json {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": absoluteUrl("/blog"),
+    name: `${seo.organizationName} blog`,
+    url: absoluteUrl("/blog"),
+    inLanguage: "en-BD",
+    blogPost: posts.slice(0, 20).map((post) => ({
+      "@type": "BlogPosting",
+      headline: truncate(post.title, 110),
+      url: absoluteUrl(`/blog/${post.slug}`),
+      ...(post.publishedAt ? { datePublished: post.publishedAt.toISOString() } : {}),
     })),
   };
 }

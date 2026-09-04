@@ -189,6 +189,15 @@ enum PageType {
   GENERIC
 }
 
+/// Where an article is in the editorial pipeline. IN_REVIEW exists so a writer
+/// without publish rights has somewhere to hand work off to.
+enum BlogStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
 enum HomeSectionType {
   HERO
   CATEGORY_GRID
@@ -232,56 +241,57 @@ enum AuditSeverity {
 // ============================================================================
 
 model User {
-  id            String     @id @default(cuid())
-  email         String     @unique
-  phone         String?    @unique
-  name          String
+  id               String     @id @default(cuid())
+  email            String     @unique
+  phone            String?    @unique
+  name             String
   /// Null for accounts created through Google, which have no password to check.
-  passwordHash  String?
+  passwordHash     String?
   /// Google's stable subject id, set once an account is linked.
-  googleId      String?    @unique
-  role          Role       @default(CUSTOMER)
-  status        UserStatus @default(ACTIVE)
-  avatarUrl     String?
-  emailVerifiedAt DateTime?
-  phoneVerifiedAt DateTime?
-  lastLoginAt   DateTime?
-  failedLoginCount Int     @default(0)
-  lockedUntil   DateTime?
-  staffNote     String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  deletedAt     DateTime?
+  googleId         String?    @unique
+  role             Role       @default(CUSTOMER)
+  status           UserStatus @default(ACTIVE)
+  avatarUrl        String?
+  emailVerifiedAt  DateTime?
+  phoneVerifiedAt  DateTime?
+  lastLoginAt      DateTime?
+  failedLoginCount Int        @default(0)
+  lockedUntil      DateTime?
+  staffNote        String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  deletedAt        DateTime?
 
-  addresses         Address[]
-  sessions          Session[]
-  orders            Order[]
-  carts             Cart[]
-  reviews           Review[]
-  notifications     Notification[]
-  passwordResets    PasswordResetToken[]
-  verificationTokens VerificationToken[]
-  permissions       UserPermission[]
-  auditLogs         AuditLog[]            @relation("AuditActor")
-  conversations     Conversation[]        @relation("ConversationCustomer")
-  assignedConversations Conversation[]    @relation("ConversationAssignee")
-  messages          Message[]
-  couponRedemptions CouponRedemption[]
-  inventoryMovements InventoryMovement[]
-  orderStatusEvents OrderStatusEvent[]
-  reviewReplies     Review[]              @relation("ReviewReplier")
-  reviewReports     ReviewReport[]
-  notificationPrefs NotificationPreference[]
-  createdProducts   Product[]             @relation("ProductCreator")
-  tokensRaised      Token[]               @relation("TokenAuthor")
-  tokenAssignments  TokenAssignee[]       @relation("TokenAssignment")
-  tokenComments     TokenComment[]        @relation("TokenComment")
-  incomingStock     StockIncoming[]       @relation("IncomingCreator")
-  dispatchLogs      CourierDispatchLog[]  @relation("DispatchActor")
-  financeEntries    FinanceTransaction[]  @relation("FinanceCreator")
-  financeAsEmployee FinanceTransaction[]  @relation("FinanceEmployee")
-  aiUsage           AiUsageLog[]          @relation("AiActor")
-  aiDrafts          AiProductDraft[]      @relation("AiDraftActor")
+  addresses             Address[]
+  sessions              Session[]
+  orders                Order[]
+  carts                 Cart[]
+  reviews               Review[]
+  notifications         Notification[]
+  passwordResets        PasswordResetToken[]
+  verificationTokens    VerificationToken[]
+  permissions           UserPermission[]
+  auditLogs             AuditLog[]               @relation("AuditActor")
+  conversations         Conversation[]           @relation("ConversationCustomer")
+  assignedConversations Conversation[]           @relation("ConversationAssignee")
+  messages              Message[]
+  couponRedemptions     CouponRedemption[]
+  inventoryMovements    InventoryMovement[]
+  orderStatusEvents     OrderStatusEvent[]
+  reviewReplies         Review[]                 @relation("ReviewReplier")
+  reviewReports         ReviewReport[]
+  notificationPrefs     NotificationPreference[]
+  createdProducts       Product[]                @relation("ProductCreator")
+  tokensRaised          Token[]                  @relation("TokenAuthor")
+  tokenAssignments      TokenAssignee[]          @relation("TokenAssignment")
+  tokenComments         TokenComment[]           @relation("TokenComment")
+  incomingStock         StockIncoming[]          @relation("IncomingCreator")
+  dispatchLogs          CourierDispatchLog[]     @relation("DispatchActor")
+  financeEntries        FinanceTransaction[]     @relation("FinanceCreator")
+  financeAsEmployee     FinanceTransaction[]     @relation("FinanceEmployee")
+  aiUsage               AiUsageLog[]             @relation("AiActor")
+  aiDrafts              AiProductDraft[]         @relation("AiDraftActor")
+  blogPosts             BlogPost[]               @relation("BlogAuthor")
 
   @@index([role, status])
   @@index([createdAt])
@@ -413,8 +423,8 @@ model Category {
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
 
-  parent          Category?         @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
-  children        Category[]        @relation("CategoryTree")
+  parent          Category?        @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children        Category[]       @relation("CategoryTree")
   products        Product[]
   couponTargets   CouponCategory[]
   offerTargets    OfferCategory[]
@@ -482,62 +492,62 @@ model AttributeOption {
 }
 
 model Product {
-  id               String        @id @default(cuid())
-  name             String
-  slug             String        @unique
-  sku              String?       @unique
-  categoryId       String?
-  brandId          String?
-  shortDescription String?
-  description      String?
-  specifications   Json?
+  id                String        @id @default(cuid())
+  name              String
+  slug              String        @unique
+  sku               String?       @unique
+  categoryId        String?
+  brandId           String?
+  shortDescription  String?
+  description       String?
+  specifications    Json?
   /// Base price in minor units. Variants may override it.
-  price            Int           @default(0)
-  compareAtPrice   Int?
-  costPrice        Int?
+  price             Int           @default(0)
+  compareAtPrice    Int?
+  costPrice         Int?
   /// Sellable right now. Reservations are already subtracted from it.
-  stock            Int           @default(0)
+  stock             Int           @default(0)
   /// Units promised to orders that have not left the building yet.
-  stockReserved    Int           @default(0)
+  stockReserved     Int           @default(0)
   /// Written off but still physically present, so it is not sellable.
-  stockDamaged     Int           @default(0)
+  stockDamaged      Int           @default(0)
   /// Expected from suppliers; informational, never sellable.
-  stockIncoming    Int           @default(0)
-  lowStockThreshold Int          @default(5)
+  stockIncoming     Int           @default(0)
+  lowStockThreshold Int           @default(5)
   /// Stock level at which someone should place a purchase order.
-  reorderLevel     Int           @default(0)
-  lastRestockedAt  DateTime?
-  weightGrams      Int?
-  lengthMm         Int?
-  widthMm          Int?
-  heightMm         Int?
-  tags             String[]      @default([])
-  status           ProductStatus @default(DRAFT)
-  isFeatured       Boolean       @default(false)
-  isTopSelling     Boolean       @default(false)
-  hasVariants      Boolean       @default(false)
-  manualRank       Int           @default(0)
-  soldCount        Int           @default(0)
-  viewCount        Int           @default(0)
-  ratingAverage    Float         @default(0)
-  ratingCount      Int           @default(0)
+  reorderLevel      Int           @default(0)
+  lastRestockedAt   DateTime?
+  weightGrams       Int?
+  lengthMm          Int?
+  widthMm           Int?
+  heightMm          Int?
+  tags              String[]      @default([])
+  status            ProductStatus @default(DRAFT)
+  isFeatured        Boolean       @default(false)
+  isTopSelling      Boolean       @default(false)
+  hasVariants       Boolean       @default(false)
+  manualRank        Int           @default(0)
+  soldCount         Int           @default(0)
+  viewCount         Int           @default(0)
+  ratingAverage     Float         @default(0)
+  ratingCount       Int           @default(0)
   /// Product-level shipping override (PRD update §4).
-  shippingMode     ShippingMode  @default(STANDARD)
-  shippingFlatFee  Int?
-  seoTitle         String?
-  seoDescription   String?
-  canonicalUrl     String?
-  ogImageUrl       String?
-  noIndex          Boolean       @default(false)
-  publishedAt      DateTime?
-  createdById      String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  deletedAt        DateTime?
+  shippingMode      ShippingMode  @default(STANDARD)
+  shippingFlatFee   Int?
+  seoTitle          String?
+  seoDescription    String?
+  canonicalUrl      String?
+  ogImageUrl        String?
+  noIndex           Boolean       @default(false)
+  publishedAt       DateTime?
+  createdById       String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  deletedAt         DateTime?
 
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  brand      Brand?    @relation(fields: [brandId], references: [id], onDelete: SetNull)
-  createdBy  User?     @relation("ProductCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  category  Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  brand     Brand?    @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  createdBy User?     @relation("ProductCreator", fields: [createdById], references: [id], onDelete: SetNull)
 
   images             ProductImage[]
   variants           ProductVariant[]
@@ -598,28 +608,28 @@ model ProductAttribute {
 }
 
 model ProductVariant {
-  id                String   @id @default(cuid())
+  id                String    @id @default(cuid())
   productId         String
-  sku               String?  @unique
+  sku               String?   @unique
   /// Human readable combination label, e.g. "1kg / Black".
   name              String
   price             Int
   compareAtPrice    Int?
   costPrice         Int?
-  stock             Int      @default(0)
-  stockReserved     Int      @default(0)
-  stockDamaged      Int      @default(0)
-  stockIncoming     Int      @default(0)
-  lowStockThreshold Int      @default(5)
-  reorderLevel      Int      @default(0)
+  stock             Int       @default(0)
+  stockReserved     Int       @default(0)
+  stockDamaged      Int       @default(0)
+  stockIncoming     Int       @default(0)
+  lowStockThreshold Int       @default(5)
+  reorderLevel      Int       @default(0)
   lastRestockedAt   DateTime?
   barcode           String?
   weightGrams       Int?
   imageUrl          String?
-  isActive          Boolean  @default(true)
-  position          Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  isActive          Boolean   @default(true)
+  position          Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   product            Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
   options            ProductVariantOption[]
@@ -713,15 +723,15 @@ model Cart {
 }
 
 model CartItem {
-  id        String   @id @default(cuid())
-  cartId    String
-  productId String
-  variantId String?
+  id         String   @id @default(cuid())
+  cartId     String
+  productId  String
+  variantId  String?
   /// Empty string when there is no variant, so the unique index still applies.
-  variantKey String  @default("")
-  quantity  Int      @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  variantKey String   @default("")
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   cart    Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
   product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -750,20 +760,20 @@ model Order {
   paymentMethod PaymentMethod @default(COD)
 
   // Money — all minor units, all recomputed server side at creation time.
-  subtotal          Int @default(0)
-  itemDiscountTotal Int @default(0)
-  offerDiscount     Int @default(0)
-  couponDiscount    Int @default(0)
-  shippingTotal     Int @default(0)
-  taxTotal          Int @default(0)
-  grandTotal        Int @default(0)
-  paidTotal         Int @default(0)
-  refundedTotal     Int @default(0)
+  subtotal          Int    @default(0)
+  itemDiscountTotal Int    @default(0)
+  offerDiscount     Int    @default(0)
+  couponDiscount    Int    @default(0)
+  shippingTotal     Int    @default(0)
+  taxTotal          Int    @default(0)
+  grandTotal        Int    @default(0)
+  paidTotal         Int    @default(0)
+  refundedTotal     Int    @default(0)
   currency          String @default("BDT")
 
-  couponId        String?
-  couponCode      String?
-  couponSnapshot  Json?
+  couponId         String?
+  couponCode       String?
+  couponSnapshot   Json?
   /// Exact shipping calculation used at purchase time (OrderShippingSnapshot).
   shippingSnapshot Json?
   shippingAddress  Json
@@ -780,19 +790,19 @@ model Order {
   isFlagged    Boolean @default(false)
   flagReason   String?
 
-  placedAt    DateTime  @default(now())
-  confirmedAt DateTime?
-  shippedAt   DateTime?
-  deliveredAt DateTime?
-  cancelledAt DateTime?
+  placedAt     DateTime  @default(now())
+  confirmedAt  DateTime?
+  shippedAt    DateTime?
+  deliveredAt  DateTime?
+  cancelledAt  DateTime?
   cancelReason String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 
-  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
-  coupon    Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
-  district  District?  @relation(fields: [districtId], references: [id], onDelete: SetNull)
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  coupon   Coupon?   @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  district District? @relation(fields: [districtId], references: [id], onDelete: SetNull)
 
   items         OrderItem[]
   statusEvents  OrderStatusEvent[]
@@ -820,7 +830,7 @@ model Order {
 /// Immutable purchase snapshot — product/variant values are copied in so later
 /// catalog edits can never change historical orders or invoices.
 model OrderItem {
-  id                 String  @id @default(cuid())
+  id                 String       @id @default(cuid())
   orderId            String
   productId          String?
   variantId          String?
@@ -833,7 +843,7 @@ model OrderItem {
   unitPrice          Int
   compareAtPrice     Int?
   quantity           Int
-  discountAmount     Int     @default(0)
+  discountAmount     Int          @default(0)
   lineSubtotal       Int
   lineTotal          Int
   shippingMode       ShippingMode @default(STANDARD)
@@ -910,12 +920,12 @@ model Token {
   createdById String
   resolvedAt  DateTime?
   closedAt    DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  createdBy   User             @relation("TokenAuthor", fields: [createdById], references: [id])
-  assignees   TokenAssignee[]
-  comments    TokenComment[]
+  createdBy User            @relation("TokenAuthor", fields: [createdById], references: [id])
+  assignees TokenAssignee[]
+  comments  TokenComment[]
 
   @@index([status, createdAt])
   @@index([createdById])
@@ -924,10 +934,10 @@ model Token {
 
 /// Who a token is assigned to. A token may name several people.
 model TokenAssignee {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   tokenId    String
   userId     String
-  assignedAt DateTime @default(now())
+  assignedAt DateTime  @default(now())
   /// Set when this person marks their part done.
   doneAt     DateTime?
 
@@ -955,17 +965,17 @@ model TokenComment {
 
 /// One-time codes confirming a shopper owns the mobile number on an order.
 model PhoneVerification {
-  id          String    @id @default(cuid())
-  phone       String
+  id         String    @id @default(cuid())
+  phone      String
   /// SHA-256 of the code. The plain code exists only in the SMS.
-  codeHash    String
-  expiresAt   DateTime
-  attempts    Int       @default(0)
-  verifiedAt  DateTime?
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  verifiedAt DateTime?
   /// Set once the verification has been spent on an order.
-  consumedAt  DateTime?
-  ipAddress   String?
-  createdAt   DateTime  @default(now())
+  consumedAt DateTime?
+  ipAddress  String?
+  createdAt  DateTime  @default(now())
 
   @@index([phone, expiresAt])
   @@map("phone_verifications")
@@ -1000,16 +1010,16 @@ model Payment {
 }
 
 model Refund {
-  id           String       @id @default(cuid())
-  orderId      String
-  amount       Int
-  reason       String?
-  status       RefundStatus @default(REQUESTED)
+  id            String       @id @default(cuid())
+  orderId       String
+  amount        Int
+  reason        String?
+  status        RefundStatus @default(REQUESTED)
   requestedById String?
   approvedById  String?
-  note         String?
-  createdAt    DateTime     @default(now())
-  processedAt  DateTime?
+  note          String?
+  createdAt     DateTime     @default(now())
+  processedAt   DateTime?
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -1066,13 +1076,13 @@ model Shipment {
   rawStatus      Json?
 
   // Where the parcel is, as far as the courier has told us.
-  currentLocation      String?
-  deliveryManName      String?
-  deliveryManPhone     String?
-  estimatedDeliveryAt  DateTime?
-  pickupAt             DateTime?
-  shippedAt            DateTime?
-  deliveredAt          DateTime?
+  currentLocation     String?
+  deliveryManName     String?
+  deliveryManPhone    String?
+  estimatedDeliveryAt DateTime?
+  pickupAt            DateTime?
+  shippedAt           DateTime?
+  deliveredAt         DateTime?
 
   // Money. All minor units.
   /// What the courier charges us to carry this parcel.
@@ -1086,9 +1096,9 @@ model Shipment {
   settlementNote   String?
 
   // Sync bookkeeping, so a failed webhook is visible rather than silent.
-  lastSyncedAt  DateTime?
-  syncAttempts  Int       @default(0)
-  syncError     String?
+  lastSyncedAt DateTime?
+  syncAttempts Int       @default(0)
+  syncError    String?
 
   createdById String?
   createdAt   DateTime @default(now())
@@ -1267,14 +1277,14 @@ model FlashSale {
 }
 
 model FlashSaleItem {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   flashSaleId String
   productId   String
   variantId   String?
   salePrice   Int
   stockLimit  Int?
-  soldCount   Int      @default(0)
-  position    Int      @default(0)
+  soldCount   Int     @default(0)
+  position    Int     @default(0)
 
   flashSale FlashSale       @relation(fields: [flashSaleId], references: [id], onDelete: Cascade)
   product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -1286,30 +1296,30 @@ model FlashSaleItem {
 }
 
 model Banner {
-  id             String          @id @default(cuid())
-  title          String
-  subtitle       String?
-  placement      BannerPlacement
-  imageUrl       String?
-  mobileImageUrl String?
-  alt            String?
-  linkUrl        String?
-  ctaLabel       String?
+  id                String          @id @default(cuid())
+  title             String
+  subtitle          String?
+  placement         BannerPlacement
+  imageUrl          String?
+  mobileImageUrl    String?
+  alt               String?
+  linkUrl           String?
+  ctaLabel          String?
   /// Second call to action. Both halves must be set for the button to appear —
   /// a label with no link is a button that goes nowhere.
-  secondaryLinkUrl String?
+  secondaryLinkUrl  String?
   secondaryCtaLabel String?
-  htmlContent    String?
-  priority       Int             @default(0)
-  startAt        DateTime?
-  endAt          DateTime?
-  isActive       Boolean         @default(true)
+  htmlContent       String?
+  priority          Int             @default(0)
+  startAt           DateTime?
+  endAt             DateTime?
+  isActive          Boolean         @default(true)
   /// Popup frequency cap in hours (0 = every visit).
-  frequencyHours Int             @default(24)
-  impressions    Int             @default(0)
-  clicks         Int             @default(0)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  frequencyHours    Int             @default(24)
+  impressions       Int             @default(0)
+  clicks            Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   @@index([placement, isActive, priority])
   @@map("banners")
@@ -1340,11 +1350,11 @@ model Review {
   updatedAt          DateTime     @updatedAt
   deletedAt          DateTime?
 
-  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
-  order     Order?     @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  orderItem OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
-  repliedBy User?      @relation("ReviewReplier", fields: [repliedById], references: [id], onDelete: SetNull)
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  order     Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  orderItem OrderItem?     @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  repliedBy User?          @relation("ReviewReplier", fields: [repliedById], references: [id], onDelete: SetNull)
   reports   ReviewReport[]
 
   @@index([productId, status])
@@ -1406,21 +1416,21 @@ model NotificationPreference {
 }
 
 model Conversation {
-  id            String             @id @default(cuid())
-  subject       String
-  customerId    String?
-  guestName     String?
-  guestEmail    String?
-  orderId       String?
-  status        ConversationStatus @default(OPEN)
-  priority      String             @default("NORMAL")
-  assignedToId  String?
-  lastMessageAt DateTime           @default(now())
-  unreadForStaff Boolean           @default(true)
-  unreadForCustomer Boolean        @default(false)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  deletedAt     DateTime?
+  id                String             @id @default(cuid())
+  subject           String
+  customerId        String?
+  guestName         String?
+  guestEmail        String?
+  orderId           String?
+  status            ConversationStatus @default(OPEN)
+  priority          String             @default("NORMAL")
+  assignedToId      String?
+  lastMessageAt     DateTime           @default(now())
+  unreadForStaff    Boolean            @default(true)
+  unreadForCustomer Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  deletedAt         DateTime?
 
   customer   User?     @relation("ConversationCustomer", fields: [customerId], references: [id], onDelete: SetNull)
   assignedTo User?     @relation("ConversationAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
@@ -1493,23 +1503,23 @@ model District {
 }
 
 model Courier {
-  id          String   @id @default(cuid())
-  name        String
-  code        String   @unique
-  description String?
-  isActive    Boolean  @default(false)
+  id                  String   @id @default(cuid())
+  name                String
+  code                String   @unique
+  description         String?
+  isActive            Boolean  @default(false)
   /// Which built-in adapter drives this courier: pathao, steadfast, redx,
   /// generic (a plain REST shape) or manual (dashboard-entered tracking).
-  provider    String   @default("manual")
-  apiBaseUrl  String?
+  provider            String   @default("manual")
+  apiBaseUrl          String?
   trackingUrlTemplate String?
   /// Default per-parcel charge in minor units, used until the courier bills us.
-  defaultCharge Int    @default(0)
+  defaultCharge       Int      @default(0)
   /// Credentials live in env/secure settings; this holds non-secret config only.
-  config      Json?
-  position    Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  config              Json?
+  position            Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   shipments Shipment[]
 
@@ -1533,24 +1543,24 @@ model NavigationMenu {
 }
 
 model NavigationItem {
-  id            String             @id @default(cuid())
-  menuId        String
-  parentId      String?
-  label         String
-  type          NavigationItemType @default(INTERNAL)
-  url           String?
-  categoryId    String?
-  pageId        String?
-  description   String?
-  imageUrl      String?
-  iconName      String?
-  badgeText     String?
-  position      Int                @default(0)
-  isActive      Boolean            @default(true)
-  openInNewTab  Boolean            @default(false)
-  isMegaColumn  Boolean            @default(false)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id           String             @id @default(cuid())
+  menuId       String
+  parentId     String?
+  label        String
+  type         NavigationItemType @default(INTERNAL)
+  url          String?
+  categoryId   String?
+  pageId       String?
+  description  String?
+  imageUrl     String?
+  iconName     String?
+  badgeText    String?
+  position     Int                @default(0)
+  isActive     Boolean            @default(true)
+  openInNewTab Boolean            @default(false)
+  isMegaColumn Boolean            @default(false)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 
   menu     NavigationMenu   @relation(fields: [menuId], references: [id], onDelete: Cascade)
   parent   NavigationItem?  @relation("NavTree", fields: [parentId], references: [id], onDelete: Cascade)
@@ -1581,6 +1591,94 @@ model Page {
 
   @@index([type, isPublished])
   @@map("pages")
+}
+
+/// A grouping for articles. Kept separate from the product `Category` tree:
+/// merging them would put "Ramadan recipes" in the shop navigation and every
+/// product category in the blog filter.
+model BlogCategory {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  position    Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  posts BlogPost[]
+
+  @@index([isActive, position])
+  @@map("blog_categories")
+}
+
+model BlogPost {
+  id       String  @id @default(cuid())
+  slug     String  @unique
+  title    String
+  subtitle String?
+  /// Card blurb, and the fallback for the meta description when none is set.
+  excerpt  String?
+  /// Sanitised HTML. See `sanitizeHtml` — never render this raw from input.
+  content  String
+
+  coverImageUrl String?
+  coverImageAlt String?
+
+  categoryId String?
+  tags       String[] @default([])
+
+  status         BlogStatus @default(DRAFT)
+  publishedAt    DateTime?
+  /// Stored rather than computed per request, so a listing of thirty cards
+  /// does not re-count thirty article bodies.
+  readingMinutes Int        @default(1)
+  viewCount      Int        @default(0)
+  isFeatured     Boolean    @default(false)
+
+  // SEO. Each falls back to the article's own field when left empty.
+  seoTitle       String?
+  seoDescription String?
+  ogImageUrl     String?
+  canonicalUrl   String?
+  noIndex        Boolean @default(false)
+
+  authorId   String?
+  /// Denormalised, so removing a staff account does not blank a byline on a
+  /// published article.
+  authorName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author   User?         @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  images   BlogImage[]
+
+  @@index([status, publishedAt])
+  @@index([categoryId, status])
+  @@index([isFeatured, status])
+  @@map("blog_posts")
+}
+
+/// Extra images for an article, beyond the cover — a gallery under the body,
+/// and the pool an author picks from when placing a picture inside the content.
+model BlogImage {
+  id       String  @id @default(cuid())
+  postId   String
+  url      String
+  /// Empty alt is meaningful (decorative), so this stays nullable rather than
+  /// defaulting to the title and lying to a screen reader.
+  alt      String?
+  caption  String?
+  position Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, position])
+  @@map("blog_images")
 }
 
 model Faq {
@@ -1706,7 +1804,6 @@ model WebhookEvent {
 
 /**
  * A physical place stock sits in.
- *
  * Per-warehouse balances are not stored as counters. They are derived by
  * summing the movement ledger for that warehouse, which cannot drift out of
  * sync with the movements the way a duplicated counter can. The product-level
@@ -1744,23 +1841,23 @@ enum IncomingStockStatus {
 
 /// A shipment of stock on its way in from a supplier.
 model StockIncoming {
-  id           String              @id @default(cuid())
-  reference    String              @unique
-  supplierName String
+  id            String              @id @default(cuid())
+  reference     String              @unique
+  supplierName  String
   supplierPhone String?
-  warehouseId  String?
-  status       IncomingStockStatus @default(EXPECTED)
-  expectedAt   DateTime?
-  receivedAt   DateTime?
+  warehouseId   String?
+  status        IncomingStockStatus @default(EXPECTED)
+  expectedAt    DateTime?
+  receivedAt    DateTime?
   /// Freight, duty and handling, in minor units — folded into the stock value.
-  shippingCost Int                 @default(0)
-  note         String?
-  createdById  String?
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
+  shippingCost  Int                 @default(0)
+  note          String?
+  createdById   String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 
-  warehouse Warehouse? @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
-  createdBy User?      @relation("IncomingCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  warehouse Warehouse?          @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
+  createdBy User?               @relation("IncomingCreator", fields: [createdById], references: [id], onDelete: SetNull)
   items     StockIncomingItem[]
 
   @@index([status, expectedAt])
@@ -1819,20 +1916,20 @@ model ShipmentEvent {
 
 /// A record of every attempt to hand a parcel to a courier, successful or not.
 model CourierDispatchLog {
-  id          String   @id @default(cuid())
-  orderId     String
-  shipmentId  String?
-  courierCode String
+  id           String   @id @default(cuid())
+  orderId      String
+  shipmentId   String?
+  courierCode  String
   /// "create", "cancel", "sync" — which call this was.
-  operation   String
-  success     Boolean
-  statusCode  Int?
+  operation    String
+  success      Boolean
+  statusCode   Int?
   /// Request/response with credentials stripped before storing.
-  request     Json?
-  response    Json?
+  request      Json?
+  response     Json?
   errorMessage String?
-  actorId     String?
-  createdAt   DateTime @default(now())
+  actorId      String?
+  createdAt    DateTime @default(now())
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
   actor User? @relation("DispatchActor", fields: [actorId], references: [id], onDelete: SetNull)
@@ -1900,7 +1997,6 @@ model ExpenseCategory {
 
 /**
  * A single money movement.
- *
  * Financial rows are never hard-deleted. Correcting one voids it and leaves
  * both the original and the reason in place, and every edit writes a revision,
  * so the books can always be replayed.
@@ -2003,7 +2099,6 @@ model AiUsageLog {
 
 /**
  * A product the AI has proposed but nobody has approved yet.
- *
  * Drafts never become products on their own. A staff member reads the payload,
  * edits anything they disagree with, and presses publish — the automation
  * setting that skips that step is off unless the owner turns it on.

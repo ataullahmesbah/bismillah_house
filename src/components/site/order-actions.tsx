@@ -11,7 +11,7 @@ export function CancelOrderButton({ orderId }: { orderId: string }) {
   const [open, setOpen] = useState(false);
 
   if (state.status === "success") {
-    return <p className="text-sm font-semibold text-success-600">{state.message}</p>;
+    return <p className="text-sm font-semibold text-success-700">{state.message}</p>;
   }
 
   if (!open) {

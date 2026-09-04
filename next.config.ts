@@ -20,6 +20,25 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  //
+  // Metadata in <head>, for everyone.
+  //
+  // Next streams `generateMetadata` output by default: on a dynamic page the
+  // title and description arrive after the body has started, so they land in
+  // <body> rather than <head>. Next blocks and puts them in <head> only for
+  // user agents on its built-in bot list (Googlebot, Bingbot, Twitterbot,
+  // Slackbot and a few others). A match-anything pattern extends that to
+  // every request.
+  //
+  // The cost is documented as a slightly later TTFB. Here that is close to
+  // nothing — every `generateMetadata` on this site reads the same settings
+  // and record the page itself already awaits, so the work is shared, not
+  // added. What it buys is that any crawler NOT on Next's list — a smaller
+  // search engine, an SEO audit tool, an AI crawler that does not run
+  // JavaScript, Lighthouse itself — sees a real title and description instead
+  // of none at all.
+  //
+  htmlLimitedBots: /.*/,
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

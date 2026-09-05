@@ -21,9 +21,19 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { BANGLADESH_DISTRICTS } from "./seed-data/districts";
 import { readingMinutes } from "../src/lib/sanitize";
+import {
+  CATALOG_ATTRIBUTES,
+  CATALOG_ATTRIBUTE_OPTIONS,
+  CATALOG_BRANDS,
+  CATALOG_CHILD_CATEGORIES,
+  CATALOG_PRODUCTS,
+  CATALOG_ROOT_CATEGORIES,
+} from "./seed-data/catalog";
+import type { CatalogProduct } from "./seed-data/catalog";
+import type { Art } from "./seed-data/product-art";
 import { SEED_BLOG_CATEGORIES, SEED_BLOG_POSTS } from "./seed-data/blog";
 import { SEED_FAQS, SEED_PAGES } from "./seed-data/content";
-import { demoImage, isDemoImage, renderDemoImages } from "./seed-data/demo-images";
+import { demoImage, demoScene, isDemoImage, renderDemoImages } from "./seed-data/demo-images";
 
 for (const file of [".env.local", ".env"]) {
   const full = path.join(process.cwd(), file);
@@ -163,6 +173,47 @@ async function seedSettings(superAdminId: string) {
   console.log(`  ✓ ${groups.length} settings groups`);
 }
 
+/**
+ * What each category's tile shows.
+ *
+ * The category grid is the second thing on the homepage; twelve grey name tiles
+ * there make the whole shop look unbuilt. Anything missing from this map still
+ * falls back to a name tile, so adding a category never breaks the seed.
+ */
+const CATEGORY_ART: Record<string, Art> = {
+  groceries: { kind: "rice", color: "#d8c8a0" },
+  footwear: { kind: "sneaker", color: "#1f6feb" },
+  fashion: { kind: "tshirt", color: "#1f2328" },
+  "home-living": { kind: "cookware", color: "#9aa3ad" },
+  "health-beauty": { kind: "facewash", color: "#2f855a" },
+  electronics: { kind: "phone", color: "#1f2937" },
+  "dates-dry-fruits": { kind: "dates", color: "#7a4324" },
+  "honey-spreads": { kind: "honey", color: "#c98a1e" },
+  "rice-grains": { kind: "rice", color: "#cbb98d" },
+  "mens-shoes": { kind: "loafer", color: "#6b4423" },
+  "t-shirts": { kind: "tshirt", color: "#1e3a5f" },
+  kitchen: { kind: "kettle", color: "#b0b7bf" },
+  "mobile-gadgets": { kind: "smartwatch", color: "#111827" },
+  audio: { kind: "headphone", color: "#22262c" },
+  "gadget-accessories": { kind: "charger", color: "#f2f3f5" },
+  "home-appliances": { kind: "bulb", color: "#f5c451" },
+  "genji-innerwear": { kind: "genji", color: "#f2f3f5" },
+  panjabi: { kind: "panjabi", color: "#1e3a5f" },
+  "bags-wallets": { kind: "wallet", color: "#6b4423" },
+  sneakers: { kind: "sneaker", color: "#b91c1c" },
+  sandals: { kind: "sandal", color: "#4b5563" },
+  "cooking-oil": { kind: "oil", color: "#c9971b" },
+  spices: { kind: "spice", color: "#b45309" },
+  "tea-beverages": { kind: "tea", color: "#7c2d12" },
+  "lentils-pulses": { kind: "lentil", color: "#c2703d" },
+};
+
+/** A category tile: its drawn artwork when there is one, its name otherwise. */
+function categoryImage(slug: string, name: string): string {
+  const art = CATEGORY_ART[slug];
+  return art ? demoImage(`category ${name}`, 400, art) : PLACEHOLDER(name, 400);
+}
+
 async function seedCategories() {
   const roots = [
     { name: "Groceries", slug: "groceries", description: "Everyday food and pantry essentials.", featured: true },
@@ -170,6 +221,7 @@ async function seedCategories() {
     { name: "Fashion", slug: "fashion", description: "Clothing and accessories.", featured: true },
     { name: "Home & Living", slug: "home-living", description: "Household and kitchen essentials.", featured: true },
     { name: "Health & Beauty", slug: "health-beauty", description: "Personal care and wellness.", featured: false },
+    ...CATALOG_ROOT_CATEGORIES,
   ];
 
   const ids: Record<string, string> = {};
@@ -180,7 +232,7 @@ async function seedCategories() {
         name: category.name,
         slug: category.slug,
         description: category.description,
-        imageUrl: PLACEHOLDER(category.name, 400),
+        imageUrl: categoryImage(category.slug, category.name),
         position: index,
         isActive: true,
         showInMenu: true,
@@ -201,6 +253,7 @@ async function seedCategories() {
     { name: "Men's Shoes", slug: "mens-shoes", parent: "footwear" },
     { name: "T-Shirts", slug: "t-shirts", parent: "fashion" },
     { name: "Kitchen", slug: "kitchen", parent: "home-living" },
+    ...CATALOG_CHILD_CATEGORIES,
   ];
 
   for (const [index, child] of children.entries()) {
@@ -210,7 +263,7 @@ async function seedCategories() {
         name: child.name,
         slug: child.slug,
         parentId: ids[child.parent],
-        imageUrl: PLACEHOLDER(child.name, 400),
+        imageUrl: categoryImage(child.slug, child.name),
         position: index,
         isActive: true,
         showInMenu: true,
@@ -231,6 +284,7 @@ async function seedBrands() {
     { name: "Ajwa Gardens", slug: "ajwa-gardens" },
     { name: "Sundarban Naturals", slug: "sundarban-naturals" },
     { name: "StepEase", slug: "stepease" },
+    ...CATALOG_BRANDS,
   ];
 
   const ids: Record<string, string> = {};
@@ -252,7 +306,7 @@ async function seedAttributes() {
   const attributes = [
     {
       name: "Weight", slug: "weight", type: "SELECT" as const, unit: "g/kg",
-      options: [["500g", "500g"], ["1kg", "1kg"], ["2kg", "2kg"]],
+      options: [["500g", "500g"], ["1kg", "1kg"], ["2kg", "2kg"], ...CATALOG_ATTRIBUTE_OPTIONS.weight.map((o) => [...o])],
     },
     {
       name: "Volume", slug: "volume", type: "SELECT" as const, unit: "ml/L",
@@ -260,20 +314,31 @@ async function seedAttributes() {
     },
     {
       name: "Shoe Size", slug: "shoe-size", type: "SELECT" as const, unit: "EU",
-      options: [["43", "43"], ["44", "44"], ["45", "45"], ["46", "46"]],
+      options: [
+        ...CATALOG_ATTRIBUTE_OPTIONS["shoe-size"].map((o) => [...o]),
+        ["43", "43"], ["44", "44"], ["45", "45"], ["46", "46"],
+      ],
     },
     {
       name: "Colour", slug: "colour", type: "COLOR" as const, unit: null,
-      options: [["black", "Black", "#111827"], ["brown", "Brown", "#7c4a26"], ["white", "White", "#f8fafc"], ["blue", "Blue", "#1d4ed8"]],
+      options: [
+        ["black", "Black", "#111827"], ["brown", "Brown", "#7c4a26"],
+        ["white", "White", "#f8fafc"], ["blue", "Blue", "#1d4ed8"],
+        ...CATALOG_ATTRIBUTE_OPTIONS.colour.map((option) => [...option]),
+      ],
     },
     {
       name: "Size", slug: "size", type: "SELECT" as const, unit: null,
-      options: [["s", "S"], ["m", "M"], ["l", "L"], ["xl", "XL"]],
+      options: [["s", "S"], ["m", "M"], ["l", "L"], ["xl", "XL"], ...CATALOG_ATTRIBUTE_OPTIONS.size.map((o) => [...o])],
     },
     {
       name: "Pack", slug: "pack", type: "SELECT" as const, unit: null,
       options: [["single", "Single"], ["pack-of-3", "Pack of 3"], ["pack-of-6", "Pack of 6"]],
     },
+    ...CATALOG_ATTRIBUTES.map((attribute) => ({
+      ...attribute,
+      options: attribute.options.map((option) => [...option]),
+    })),
   ];
 
   const attributeIds: Record<string, string> = {};
@@ -293,7 +358,10 @@ async function seedAttributes() {
       const optionRow = await prisma.attributeOption.upsert({
         where: { attributeId_value: { attributeId: row.id, value: value! } },
         create: { attributeId: row.id, value: value!, label: label!, colorHex: colorHex ?? null, position: optionIndex },
-        update: { label: label!, colorHex: colorHex ?? null },
+        // Position too: sizes added in a later run would otherwise collide with
+        // the positions the first run handed out, and the picker would show
+        // 40, 43, 41, 42.
+        update: { label: label!, colorHex: colorHex ?? null, position: optionIndex },
         select: { id: true },
       });
       optionIds[`${attribute.slug}:${value}`] = optionRow.id;
@@ -321,183 +389,301 @@ type ProductSeed = {
   shippingFlatFee?: number;
   tags: string[];
   specs: Array<{ label: string; value: string }>;
-  images: number;
+  /** Drawn artwork for the primary image. Falls back to a text tile without it. */
+  art?: Art;
+  /** Extra gallery shots, usually the same product in another colour. */
+  gallery?: Art[];
+  /** How many text tiles to make when there is no artwork. */
+  images?: number;
+  /** Days back to date the product, so "New arrivals" has a real order. */
+  addedDaysAgo?: number;
+  review?: { author: string; rating: number; title: string; body: string };
 };
+
+/**
+ * Product images.
+ *
+ * With artwork the primary image and every gallery shot are drawn; without it
+ * the old text tiles are still produced, so a product added to this file
+ * without art does not end up with no image at all.
+ */
+function productImages(product: ProductSeed): Array<{ url: string; alt: string }> {
+  if (product.art) {
+    return [product.art, ...(product.gallery ?? [])].map((art, index) => ({
+      url: demoImage(`${product.name} ${index + 1}`, 800, art),
+      alt: `${product.name} — image ${index + 1}`,
+    }));
+  }
+  return Array.from({ length: product.images ?? 1 }, (_, index) => ({
+    url: PLACEHOLDER(`${product.name} ${index + 1}`),
+    alt: `${product.name} — image ${index + 1}`,
+  }));
+}
+
+/**
+ * A catalogue entry becomes a seed product.
+ *
+ * The catalogue writes prices in plain taka because that is how the shop owner
+ * thinks about them; the database stores minor units. Variants are dropped
+ * here and picked up by `seedVariants`, which is the only place that knows how
+ * to attach options.
+ */
+function catalogToSeed(product: CatalogProduct): ProductSeed {
+  const { price, compareAt, variants: _variants, ...rest } = product;
+  return {
+    ...rest,
+    price: taka(price),
+    compareAt: compareAt === undefined ? undefined : taka(compareAt),
+  };
+}
+
+/**
+ * What each demo product's images should be, filled in as they are seeded.
+ *
+ * `refreshDemoImagery` needs this: it runs long after the product list is out
+ * of scope, and without it a re-seed would quietly revert every drawn product
+ * back to a grey name tile.
+ */
+const demoProductImages = new Map<string, Array<{ url: string; alt: string }>>();
+
+/**
+ * Every demo product: the original handful the PRD called for, plus the
+ * catalogue that fills the rest of the shop. Module scope because the reviews
+ * are seeded from the same list.
+ */
+const SEEDED_PRODUCTS: ProductSeed[] = [
+  {
+    name: "Premium Ajwa Dates",
+    slug: "premium-ajwa-dates",
+    sku: "TM-DATES-AJWA",
+    category: "dates-dry-fruits",
+    brand: "ajwa-gardens",
+    short: "Soft, rich Ajwa dates packed fresh. Available in 500g, 1kg and 2kg.",
+    description:
+      "Hand-selected Ajwa dates with a deep caramel sweetness and soft texture. Vacuum packed to keep them fresh, and sold in three sizes so you can buy for the family or for gifting.",
+    price: taka(500),
+    compareAt: taka(650),
+    stock: 0,
+    featured: true,
+    topSelling: true,
+    tags: ["dates", "ajwa", "ramadan", "gift"],
+    specs: [
+      { label: "Origin", value: "Madinah" },
+      { label: "Storage", value: "Cool, dry place" },
+      { label: "Shelf life", value: "12 months" },
+    ],
+    art: { kind: "dates", color: "#7a4324" },
+    gallery: [{ kind: "dates", color: "#5c3018" }, { kind: "dates", color: "#8d5a34" }],
+    review: {
+      author: "Rezaul K.",
+      rating: 5,
+      title: "Soft and fresh, exactly as pictured",
+      body: "Ordered the 1kg pack before Ramadan. The dates were soft, not dry at all, and the vacuum pack was still sealed when it arrived.",
+    },
+  },
+  {
+    name: "Sundarban Raw Honey",
+    slug: "sundarban-raw-honey",
+    sku: "TM-HONEY-SB",
+    category: "honey-spreads",
+    brand: "sundarban-naturals",
+    short: "Unprocessed raw honey from the Sundarbans. 500ml and 1L jars.",
+    description:
+      "Collected by traditional honey hunters in the Sundarbans and bottled without heating or filtering, so the natural pollen and enzymes stay intact.",
+    price: taka(450),
+    compareAt: taka(550),
+    stock: 0,
+    featured: true,
+    tags: ["honey", "raw", "natural", "sundarban"],
+    specs: [
+      { label: "Type", value: "Raw, unpasteurised" },
+      { label: "Source", value: "Sundarban mangrove forest" },
+    ],
+    art: { kind: "honey", color: "#c98a1e" },
+    gallery: [{ kind: "honey", color: "#a86f13" }],
+    review: {
+      author: "Nusrat J.",
+      rating: 5,
+      title: "Tastes like the real thing",
+      body: "Thick, slightly grainy and with that mustard-flower smell you never get from the supermarket bottles. The 1L jar lasts our family a month.",
+    },
+  },
+  {
+    name: "StepEase Casual Leather Shoes",
+    slug: "stepease-casual-leather-shoes",
+    sku: "TM-SHOE-CAS",
+    category: "mens-shoes",
+    brand: "stepease",
+    short: "Full-grain leather casual shoes. Sizes 43–46 in Black and Brown.",
+    description:
+      "Everyday leather shoes with a cushioned insole and a stitched rubber outsole. Comfortable enough for a full day on your feet.",
+    price: taka(1800),
+    compareAt: taka(2400),
+    stock: 0,
+    featured: true,
+    topSelling: true,
+    tags: ["shoes", "leather", "casual", "men"],
+    specs: [
+      { label: "Upper", value: "Full-grain leather" },
+      { label: "Sole", value: "Rubber, stitched" },
+      { label: "Warranty", value: "3 months" },
+    ],
+    art: { kind: "shoe", color: "#2b2b2f" },
+    gallery: [{ kind: "shoe", color: "#6b4423" }, { kind: "loafer", color: "#2b2b2f" }],
+    review: {
+      author: "Tanvir H.",
+      rating: 4,
+      title: "True to size, good leather",
+      body: "I take 44 and 44 fit perfectly. The leather is soft from day one, no break-in blisters. Only wish the sole was a little thicker.",
+    },
+  },
+  {
+    name: "Trust Select Cotton T-Shirt",
+    slug: "trust-select-cotton-t-shirt",
+    sku: "TM-TSHIRT-CT",
+    category: "t-shirts",
+    brand: "trust-select",
+    short: "180 GSM combed cotton tee. S–XL in four colours.",
+    description:
+      "A properly made basic: 180 GSM combed cotton, bias-taped shoulders and a collar that keeps its shape after washing.",
+    price: taka(650),
+    compareAt: taka(850),
+    stock: 0,
+    tags: ["t-shirt", "cotton", "casual"],
+    specs: [
+      { label: "Fabric", value: "180 GSM combed cotton" },
+      { label: "Fit", value: "Regular" },
+      { label: "Care", value: "Machine wash cold" },
+    ],
+    art: { kind: "tshirt", color: "#1f2328" },
+    gallery: [{ kind: "tshirt", color: "#f2f3f5" }, { kind: "tshirt", color: "#1e3a5f" }],
+    review: {
+      author: "Sabbir A.",
+      rating: 5,
+      title: "Thick cotton, holds its shape",
+      body: "Washed it four times and it has not lost colour or gone out of shape. Bought black and white, will get the blue next.",
+    },
+  },
+  {
+    name: "Aromatic Kalijira Rice 5kg",
+    slug: "aromatic-kalijira-rice-5kg",
+    sku: "TM-RICE-KJ5",
+    category: "rice-grains",
+    brand: "trust-select",
+    short: "Fine aromatic Kalijira rice, 5kg bag. Free delivery nationwide.",
+    description:
+      "Small-grain aromatic Kalijira rice — the traditional choice for polao and biryani. Cleaned, sorted and packed in a resealable 5kg bag.",
+    price: taka(850),
+    stock: 120,
+    featured: true,
+    shippingMode: "FREE",
+    tags: ["rice", "kalijira", "aromatic"],
+    specs: [
+      { label: "Weight", value: "5 kg" },
+      { label: "Type", value: "Kalijira aromatic" },
+    ],
+    art: { kind: "rice", color: "#d8c8a0" },
+    gallery: [{ kind: "rice", color: "#c9b485" }],
+    review: {
+      author: "Farhana A.",
+      rating: 5,
+      title: "The whole flat could smell the polao",
+      body: "Proper small-grain Kalijira, cleaned well — I did not find a single stone in the 5kg bag. Free delivery made it cheaper than my local shop.",
+    },
+  },
+  {
+    name: "Stainless Steel Cookware Set",
+    slug: "stainless-steel-cookware-set",
+    sku: "TM-COOK-SS7",
+    category: "kitchen",
+    brand: "trust-select",
+    short: "7-piece induction-ready cookware set. Fixed ৳100 delivery charge.",
+    description:
+      "Heavy-gauge stainless steel with an encapsulated base for even heating. Induction, gas and electric compatible. Because of its weight this set carries its own delivery charge.",
+    price: taka(4500),
+    compareAt: taka(5800),
+    stock: 25,
+    shippingMode: "FIXED",
+    shippingFlatFee: taka(100),
+    topSelling: true,
+    tags: ["cookware", "kitchen", "steel"],
+    specs: [
+      { label: "Pieces", value: "7" },
+      { label: "Material", value: "304 stainless steel" },
+      { label: "Induction ready", value: "Yes" },
+    ],
+    art: { kind: "cookware", color: "#9aa3ad" },
+    gallery: [{ kind: "cookware", color: "#7d8791" }],
+    review: {
+      author: "Mahmuda R.",
+      rating: 4,
+      title: "Heavy base, heats evenly",
+      body: "Works on my induction cooker without any hot spots. It is genuinely heavy, so the extra delivery charge is fair.",
+    },
+  },
+  {
+    name: "Cold Pressed Mustard Oil",
+    slug: "cold-pressed-mustard-oil",
+    sku: "TM-OIL-MST",
+    category: "groceries",
+    brand: "sundarban-naturals",
+    short: "Traditional ghani cold-pressed mustard oil. 500ml, 1L and 2L.",
+    description:
+      "Pressed slowly in a wooden ghani so the oil keeps its pungency and aroma. Nothing added, nothing refined out.",
+    price: taka(320),
+    stock: 0,
+    tags: ["oil", "mustard", "cold pressed"],
+    specs: [
+      { label: "Extraction", value: "Wooden ghani, cold pressed" },
+      { label: "Shelf life", value: "9 months" },
+    ],
+    art: { kind: "oil", color: "#c9971b" },
+    gallery: [{ kind: "oil", color: "#b4820f" }],
+    review: {
+      author: "Imran S.",
+      rating: 5,
+      title: "That proper ghani kick",
+      body: "Strong pungent smell the moment you open it — this is the real cold-pressed thing, not the refined stuff sold as mustard oil.",
+    },
+  },
+  {
+    name: "Herbal Face Wash",
+    slug: "herbal-face-wash",
+    sku: "TM-FACE-HRB",
+    category: "health-beauty",
+    brand: "trust-select",
+    short: "Gentle daily face wash with neem and tulsi.",
+    description: "A mild, non-drying daily cleanser with neem and tulsi extract. Suitable for oily and combination skin.",
+    price: taka(280),
+    compareAt: taka(350),
+    stock: 200,
+    tags: ["face wash", "herbal", "skincare"],
+    specs: [
+      { label: "Volume", value: "150 ml" },
+      { label: "Skin type", value: "Oily / combination" },
+    ],
+    art: { kind: "facewash", color: "#2f855a" },
+    review: {
+      author: "Sadia N.",
+      rating: 4,
+      title: "Gentle enough for daily use",
+      body: "Does not leave my skin tight the way soap does, and the neem smell is mild. Two weeks in and my T-zone is noticeably less oily.",
+    },
+  },
+...CATALOG_PRODUCTS.map(catalogToSeed),
+];
 
 async function seedProducts(
   categoryIds: Record<string, string>,
   brandIds: Record<string, string>,
   createdById: string,
 ) {
-  const products: ProductSeed[] = [
-    {
-      name: "Premium Ajwa Dates",
-      slug: "premium-ajwa-dates",
-      sku: "TM-DATES-AJWA",
-      category: "dates-dry-fruits",
-      brand: "ajwa-gardens",
-      short: "Soft, rich Ajwa dates packed fresh. Available in 500g, 1kg and 2kg.",
-      description:
-        "Hand-selected Ajwa dates with a deep caramel sweetness and soft texture. Vacuum packed to keep them fresh, and sold in three sizes so you can buy for the family or for gifting.",
-      price: taka(500),
-      compareAt: taka(650),
-      stock: 0,
-      featured: true,
-      topSelling: true,
-      tags: ["dates", "ajwa", "ramadan", "gift"],
-      specs: [
-        { label: "Origin", value: "Madinah" },
-        { label: "Storage", value: "Cool, dry place" },
-        { label: "Shelf life", value: "12 months" },
-      ],
-      images: 3,
-    },
-    {
-      name: "Sundarban Raw Honey",
-      slug: "sundarban-raw-honey",
-      sku: "TM-HONEY-SB",
-      category: "honey-spreads",
-      brand: "sundarban-naturals",
-      short: "Unprocessed raw honey from the Sundarbans. 500ml and 1L jars.",
-      description:
-        "Collected by traditional honey hunters in the Sundarbans and bottled without heating or filtering, so the natural pollen and enzymes stay intact.",
-      price: taka(450),
-      compareAt: taka(550),
-      stock: 0,
-      featured: true,
-      tags: ["honey", "raw", "natural", "sundarban"],
-      specs: [
-        { label: "Type", value: "Raw, unpasteurised" },
-        { label: "Source", value: "Sundarban mangrove forest" },
-      ],
-      images: 2,
-    },
-    {
-      name: "StepEase Casual Leather Shoes",
-      slug: "stepease-casual-leather-shoes",
-      sku: "TM-SHOE-CAS",
-      category: "mens-shoes",
-      brand: "stepease",
-      short: "Full-grain leather casual shoes. Sizes 43–46 in Black and Brown.",
-      description:
-        "Everyday leather shoes with a cushioned insole and a stitched rubber outsole. Comfortable enough for a full day on your feet.",
-      price: taka(1800),
-      compareAt: taka(2400),
-      stock: 0,
-      featured: true,
-      topSelling: true,
-      tags: ["shoes", "leather", "casual", "men"],
-      specs: [
-        { label: "Upper", value: "Full-grain leather" },
-        { label: "Sole", value: "Rubber, stitched" },
-        { label: "Warranty", value: "3 months" },
-      ],
-      images: 3,
-    },
-    {
-      name: "Trust Select Cotton T-Shirt",
-      slug: "trust-select-cotton-t-shirt",
-      sku: "TM-TSHIRT-CT",
-      category: "t-shirts",
-      brand: "trust-select",
-      short: "180 GSM combed cotton tee. S–XL in four colours.",
-      description:
-        "A properly made basic: 180 GSM combed cotton, bias-taped shoulders and a collar that keeps its shape after washing.",
-      price: taka(650),
-      compareAt: taka(850),
-      stock: 0,
-      tags: ["t-shirt", "cotton", "casual"],
-      specs: [
-        { label: "Fabric", value: "180 GSM combed cotton" },
-        { label: "Fit", value: "Regular" },
-        { label: "Care", value: "Machine wash cold" },
-      ],
-      images: 2,
-    },
-    {
-      name: "Aromatic Kalijira Rice 5kg",
-      slug: "aromatic-kalijira-rice-5kg",
-      sku: "TM-RICE-KJ5",
-      category: "rice-grains",
-      brand: "trust-select",
-      short: "Fine aromatic Kalijira rice, 5kg bag. Free delivery nationwide.",
-      description:
-        "Small-grain aromatic Kalijira rice — the traditional choice for polao and biryani. Cleaned, sorted and packed in a resealable 5kg bag.",
-      price: taka(850),
-      stock: 120,
-      featured: true,
-      shippingMode: "FREE",
-      tags: ["rice", "kalijira", "aromatic"],
-      specs: [
-        { label: "Weight", value: "5 kg" },
-        { label: "Type", value: "Kalijira aromatic" },
-      ],
-      images: 2,
-    },
-    {
-      name: "Stainless Steel Cookware Set",
-      slug: "stainless-steel-cookware-set",
-      sku: "TM-COOK-SS7",
-      category: "kitchen",
-      brand: "trust-select",
-      short: "7-piece induction-ready cookware set. Fixed ৳100 delivery charge.",
-      description:
-        "Heavy-gauge stainless steel with an encapsulated base for even heating. Induction, gas and electric compatible. Because of its weight this set carries its own delivery charge.",
-      price: taka(4500),
-      compareAt: taka(5800),
-      stock: 25,
-      shippingMode: "FIXED",
-      shippingFlatFee: taka(100),
-      topSelling: true,
-      tags: ["cookware", "kitchen", "steel"],
-      specs: [
-        { label: "Pieces", value: "7" },
-        { label: "Material", value: "304 stainless steel" },
-        { label: "Induction ready", value: "Yes" },
-      ],
-      images: 2,
-    },
-    {
-      name: "Cold Pressed Mustard Oil",
-      slug: "cold-pressed-mustard-oil",
-      sku: "TM-OIL-MST",
-      category: "groceries",
-      brand: "sundarban-naturals",
-      short: "Traditional ghani cold-pressed mustard oil. 500ml, 1L and 2L.",
-      description:
-        "Pressed slowly in a wooden ghani so the oil keeps its pungency and aroma. Nothing added, nothing refined out.",
-      price: taka(320),
-      stock: 0,
-      tags: ["oil", "mustard", "cold pressed"],
-      specs: [
-        { label: "Extraction", value: "Wooden ghani, cold pressed" },
-        { label: "Shelf life", value: "9 months" },
-      ],
-      images: 2,
-    },
-    {
-      name: "Herbal Face Wash",
-      slug: "herbal-face-wash",
-      sku: "TM-FACE-HRB",
-      category: "health-beauty",
-      brand: "trust-select",
-      short: "Gentle daily face wash with neem and tulsi.",
-      description: "A mild, non-drying daily cleanser with neem and tulsi extract. Suitable for oily and combination skin.",
-      price: taka(280),
-      compareAt: taka(350),
-      stock: 200,
-      tags: ["face wash", "herbal", "skincare"],
-      specs: [
-        { label: "Volume", value: "150 ml" },
-        { label: "Skin type", value: "Oily / combination" },
-      ],
-      images: 1,
-    },
-  ];
-
   const ids: Record<string, string> = {};
 
-  for (const product of products) {
+  for (const product of SEEDED_PRODUCTS) {
+    const images = productImages(product);
+    demoProductImages.set(product.slug, images);
+
     const row = await prisma.product.upsert({
       where: { slug: product.slug },
       create: {
@@ -519,14 +705,13 @@ async function seedProducts(
         isTopSelling: product.topSelling ?? false,
         shippingMode: product.shippingMode ?? "STANDARD",
         shippingFlatFee: product.shippingFlatFee ?? null,
-        publishedAt: new Date(),
+        publishedAt: new Date(Date.now() - (product.addedDaysAgo ?? 60) * 86_400_000),
         createdById,
         seoTitle: `${product.name} — Trust Mart`,
         seoDescription: product.short,
         images: {
-          create: Array.from({ length: product.images }, (_, index) => ({
-            url: PLACEHOLDER(`${product.name} ${index + 1}`),
-            alt: `${product.name} — image ${index + 1}`,
+          create: images.map((image, index) => ({
+            ...image,
             position: index,
             isPrimary: index === 0,
           })),
@@ -540,7 +725,7 @@ async function seedProducts(
     ids[product.slug] = row.id;
   }
 
-  console.log(`  ✓ ${products.length} products`);
+  console.log(`  ✓ ${SEEDED_PRODUCTS.length} products`);
   return ids;
 }
 
@@ -613,6 +798,22 @@ async function seedVariants(
         { options: ["volume:2l"], name: "2L", sku: "TM-OIL-MST-2L", price: taka(1150), stock: 12 },
       ],
     },
+    // Everything the catalogue declares, with its taka prices converted.
+    ...CATALOG_PRODUCTS.flatMap((product) =>
+      product.variants
+        ? [
+            {
+              productSlug: product.slug,
+              attributes: [...product.variants.attributes],
+              rows: product.variants.rows.map((row) => ({
+                ...row,
+                price: taka(row.price),
+                compareAt: row.compareAt === undefined ? undefined : taka(row.compareAt),
+              })),
+            },
+          ]
+        : [],
+    ),
   ];
 
   let variantCount = 0;
@@ -661,23 +862,94 @@ async function seedVariants(
       variantCount += 1;
     }
 
-    // Keep the product's headline price and total stock in step with its variants.
-    const aggregate = await prisma.productVariant.aggregate({
-      where: { productId, isActive: true },
-      _min: { price: true },
-      _sum: { stock: true },
-    });
+    // Keep the product's headline price and total stock in step with its
+    // variants. The compare-at has to come from the *same* variant as the
+    // price, not from whatever the product row was seeded with: a 1kg bag at
+    // ৳190 next to the 5kg bag's ৳1,050 compare-at prints "-82% off".
+    const [cheapest, totals] = await Promise.all([
+      prisma.productVariant.findFirst({
+        where: { productId, isActive: true },
+        orderBy: { price: "asc" },
+        select: { price: true, compareAtPrice: true },
+      }),
+      prisma.productVariant.aggregate({ where: { productId, isActive: true }, _sum: { stock: true } }),
+    ]);
+
     await prisma.product.update({
       where: { id: productId },
       data: {
         hasVariants: true,
-        price: aggregate._min.price ?? undefined,
-        stock: aggregate._sum.stock ?? 0,
+        price: cheapest?.price ?? undefined,
+        compareAtPrice: cheapest ? cheapest.compareAtPrice : undefined,
+        stock: totals._sum.stock ?? 0,
       },
     });
   }
 
   console.log(`  ✓ ${variantCount} new product variants`);
+}
+
+/**
+ * One published review per demo product.
+ *
+ * A product page with an empty review block looks unfinished, and the rating
+ * summary, the stars on the card and the "sort by rating" option on /shop all
+ * do nothing without rows behind them. These are written as customer copy, not
+ * lorem: they are what the owner will replace with real ones.
+ *
+ * Keyed on the product, so re-running the seed never stacks up duplicates —
+ * and a review an admin has since edited or replied to is left alone.
+ */
+async function seedReviews(productIds: Record<string, string>) {
+  const seeds: Array<{ slug: string; review: NonNullable<ProductSeed["review"]> }> = [
+    ...SEEDED_PRODUCTS.flatMap((product) =>
+      product.review ? [{ slug: product.slug, review: product.review }] : [],
+    ),
+  ];
+
+  let created = 0;
+
+  for (const { slug, review } of seeds) {
+    const productId = productIds[slug];
+    if (!productId) continue;
+
+    const existing = await prisma.review.findFirst({
+      where: { productId, authorName: review.author, userId: null },
+      select: { id: true },
+    });
+    if (existing) continue;
+
+    await prisma.review.create({
+      data: {
+        productId,
+        rating: review.rating,
+        title: review.title,
+        body: review.body,
+        authorName: review.author,
+        status: "APPROVED",
+        isVerifiedPurchase: true,
+      },
+    });
+    created += 1;
+  }
+
+  // Keep the denormalised rating on the product in step with what now exists.
+  for (const productId of Object.values(productIds)) {
+    const aggregate = await prisma.review.aggregate({
+      where: { productId, status: "APPROVED", deletedAt: null },
+      _avg: { rating: true },
+      _count: { _all: true },
+    });
+    await prisma.product.update({
+      where: { id: productId },
+      data: {
+        ratingAverage: aggregate._avg.rating ?? 0,
+        ratingCount: aggregate._count._all,
+      },
+    });
+  }
+
+  console.log(`  ✓ ${created} product reviews`);
 }
 
 async function seedPromotions(productIds: Record<string, string>, categoryIds: Record<string, string>, createdById: string) {
@@ -810,25 +1082,56 @@ async function seedPromotions(productIds: Record<string, string>, categoryIds: R
   }
 
   // Flash sale with two products.
+  // The demo sale is re-armed rather than skipped: one that has run out is a
+  // homepage section that renders nothing, which looks like a broken shop
+  // rather than a finished sale. A window the owner has since moved into the
+  // future is theirs, and left alone.
   const existingSale = await prisma.flashSale.findFirst({ where: { title: "Weekend Flash Sale" } });
-  if (!existingSale) {
-    const sale = await prisma.flashSale.create({
-      data: {
-        title: "Weekend Flash Sale",
-        description: "Limited stock at a lower price — while it lasts.",
-        startAt: now,
-        endAt: inThreeDays,
-        isActive: true,
-        position: 0,
-      },
-      select: { id: true },
-    });
+  {
+    const sale = existingSale
+      ? await prisma.flashSale.update({
+          where: { id: existingSale.id },
+          data: existingSale.endAt <= now ? { startAt: now, endAt: inThreeDays, isActive: true } : {},
+          select: { id: true },
+        })
+      : await prisma.flashSale.create({
+          data: {
+            title: "Weekend Flash Sale",
+            description: "Limited stock at a lower price — while it lasts.",
+            startAt: now,
+            endAt: inThreeDays,
+            isActive: true,
+            position: 0,
+          },
+          select: { id: true },
+        });
+    // Enough rows that the homepage strip scrolls, spread across departments
+    // so the section is not obviously all one category.
+    const saleItems: Array<[slug: string, salePrice: number, stockLimit: number]> = [
+      ["stainless-steel-cookware-set", 3900, 10],
+      ["soundkit-air-pro-earbuds", 1290, 25],
+      ["urbanstep-runner-sneakers", 1750, 15],
+      ["nexa-powercore-power-bank", 1150, 30],
+      ["cotton-genji-pack-of-3", 620, 50],
+      ["premium-black-tea-400g", 330, 60],
+      ["nexa-led-smart-bulb", 690, 20],
+      ["herbal-face-wash", 210, 40],
+    ];
+
+    // `skipDuplicates` cannot be relied on here: the unique index includes
+    // variantId, and Postgres treats two NULLs as different values, so every
+    // re-seed would add the same product again.
+    const already = new Set(
+      (await prisma.flashSaleItem.findMany({ where: { flashSaleId: sale.id }, select: { productId: true } }))
+        .map((item) => item.productId),
+    );
+
     await prisma.flashSaleItem.createMany({
-      data: [
-        { flashSaleId: sale.id, productId: productIds["stainless-steel-cookware-set"]!, salePrice: taka(3900), stockLimit: 10, position: 0 },
-        { flashSaleId: sale.id, productId: productIds["herbal-face-wash"]!, salePrice: taka(210), stockLimit: 40, position: 1 },
-      ],
-      skipDuplicates: true,
+      data: saleItems.flatMap(([slug, salePrice, stockLimit], position) => {
+        const productId = productIds[slug];
+        if (!productId || already.has(productId)) return [];
+        return [{ flashSaleId: sale.id, productId, salePrice: taka(salePrice), stockLimit, position }];
+      }),
     });
   }
 
@@ -839,11 +1142,46 @@ async function seedPromotions(productIds: Record<string, string>, categoryIds: R
  * Demo artwork for the banners that have one, keyed by banner title so both
  * seeding and the refresh below derive the same image.
  */
-const BANNER_IMAGES: Record<string, { label: string; size: number }> = {
-  "Genuine products, delivered with care": { label: "Trust Mart", size: 1600 },
-  "Ramadan pantry": { label: "Ramadan", size: 800 },
-  "New footwear": { label: "Footwear", size: 800 },
+const BANNER_IMAGES: Record<string, { items: Art[]; width: number; height: number; tint?: string }> = {
+  "Genuine products, delivered with care": {
+    items: [
+      { kind: "phone", color: "#111827" },
+      { kind: "sneaker", color: "#1f6feb" },
+      { kind: "rice", color: "#d8c8a0" },
+      { kind: "headphone", color: "#22262c" },
+      { kind: "dates", color: "#7a4324" },
+    ],
+    width: 1600,
+    height: 700,
+    tint: "#dbe4f0",
+  },
+  "Ramadan pantry": {
+    items: [
+      { kind: "dates", color: "#7a4324" },
+      { kind: "honey", color: "#c98a1e" },
+      { kind: "rice", color: "#d8c8a0" },
+    ],
+    width: 800,
+    height: 500,
+    tint: "#efe6d5",
+  },
+  "New footwear": {
+    items: [
+      { kind: "sneaker", color: "#b91c1c" },
+      { kind: "loafer", color: "#6b4423" },
+      { kind: "sandal", color: "#4b5563" },
+    ],
+    width: 800,
+    height: 500,
+    tint: "#e2e6ec",
+  },
 };
+
+/** The banner's picture, or null for the strip banners that are text only. */
+function bannerImage(title: string): string | null {
+  const scene = BANNER_IMAGES[title];
+  return scene ? demoScene(`banner ${title}`, scene) : null;
+}
 
 /**
  * Points existing demo artwork at the current local images.
@@ -856,10 +1194,10 @@ const BANNER_IMAGES: Record<string, { label: string; size: number }> = {
 async function refreshDemoImagery() {
   let updated = 0;
 
-  const categories = await prisma.category.findMany({ select: { id: true, name: true, imageUrl: true } });
+  const categories = await prisma.category.findMany({ select: { id: true, slug: true, name: true, imageUrl: true } });
   for (const category of categories) {
     if (!isDemoImage(category.imageUrl)) continue;
-    const url = PLACEHOLDER(category.name, 400);
+    const url = categoryImage(category.slug, category.name);
     if (url === category.imageUrl) continue;
     await prisma.category.update({ where: { id: category.id }, data: { imageUrl: url } });
     updated += 1;
@@ -877,23 +1215,45 @@ async function refreshDemoImagery() {
   const banners = await prisma.banner.findMany({ select: { id: true, title: true, imageUrl: true } });
   for (const banner of banners) {
     if (!isDemoImage(banner.imageUrl)) continue;
-    const artwork = BANNER_IMAGES[banner.title];
-    if (!artwork) continue;
-    const url = PLACEHOLDER(artwork.label, artwork.size);
-    if (url === banner.imageUrl) continue;
+    const url = bannerImage(banner.title);
+    if (!url || url === banner.imageUrl) continue;
     await prisma.banner.update({ where: { id: banner.id }, data: { imageUrl: url } });
     updated += 1;
   }
 
   const images = await prisma.productImage.findMany({
-    select: { id: true, url: true, position: true, product: { select: { name: true } } },
+    select: { id: true, url: true, alt: true, position: true, product: { select: { slug: true, name: true } } },
   });
   for (const image of images) {
     if (!isDemoImage(image.url)) continue;
-    const url = PLACEHOLDER(`${image.product.name} ${image.position + 1}`);
+    // Prefer what this run actually drew for the product. Falling back to a
+    // name tile here is what used to wipe the artwork off every re-seed.
+    const drawn = demoProductImages.get(image.product.slug)?.[image.position];
+    const url = drawn?.url ?? PLACEHOLDER(`${image.product.name} ${image.position + 1}`);
     if (url === image.url) continue;
-    await prisma.productImage.update({ where: { id: image.id }, data: { url } });
+    await prisma.productImage.update({
+      where: { id: image.id },
+      data: { url, alt: drawn?.alt ?? image.alt },
+    });
     updated += 1;
+  }
+
+  // A product that gained gallery shots since it was first seeded has fewer
+  // rows than the seed now describes; add the missing ones.
+  for (const [slug, wanted] of demoProductImages) {
+    const product = await prisma.product.findUnique({
+      where: { slug },
+      select: { id: true, images: { select: { position: true } } },
+    });
+    if (!product) continue;
+    const have = new Set(product.images.map((image) => image.position));
+    for (const [position, image] of wanted.entries()) {
+      if (have.has(position)) continue;
+      await prisma.productImage.create({
+        data: { productId: product.id, url: image.url, alt: image.alt, position, isPrimary: position === 0 },
+      });
+      updated += 1;
+    }
   }
 
   if (updated > 0) console.log(`  ✓ refreshed ${updated} demo images to local artwork`);
@@ -951,9 +1311,8 @@ async function seedBanners() {
   for (const banner of banners) {
     const existing = await prisma.banner.findFirst({ where: { title: banner.title, placement: banner.placement } });
     if (existing) continue;
-    const artwork = BANNER_IMAGES[banner.title];
     await prisma.banner.create({
-      data: { ...banner, imageUrl: artwork ? PLACEHOLDER(artwork.label, artwork.size) : null, isActive: true },
+      data: { ...banner, imageUrl: bannerImage(banner.title), isActive: true },
     });
   }
 
@@ -1069,23 +1428,45 @@ async function seedNavigation(categoryIds: Record<string, string>) {
   const items: NavSeed[] = [
     { menu: "MAIN", label: "All products", type: "INTERNAL", url: "/shop", position: 0 },
     {
-      menu: "MAIN", label: "Groceries", type: "CATEGORY", categorySlug: "groceries", position: 1, isMegaColumn: true,
+      menu: "MAIN", label: "Electronics", type: "CATEGORY", categorySlug: "electronics", position: 1, isMegaColumn: true,
+      children: [
+        { menu: "MAIN", label: "Mobile & Gadgets", type: "CATEGORY", categorySlug: "mobile-gadgets", position: 0 },
+        { menu: "MAIN", label: "Audio & Sound", type: "CATEGORY", categorySlug: "audio", position: 1 },
+        { menu: "MAIN", label: "Gadget Accessories", type: "CATEGORY", categorySlug: "gadget-accessories", position: 2 },
+        { menu: "MAIN", label: "Home Appliances", type: "CATEGORY", categorySlug: "home-appliances", position: 3 },
+      ],
+    },
+    {
+      menu: "MAIN", label: "Groceries", type: "CATEGORY", categorySlug: "groceries", position: 2, isMegaColumn: true,
       children: [
         { menu: "MAIN", label: "Dates & Dry Fruits", type: "CATEGORY", categorySlug: "dates-dry-fruits", position: 0 },
         { menu: "MAIN", label: "Honey & Spreads", type: "CATEGORY", categorySlug: "honey-spreads", position: 1 },
         { menu: "MAIN", label: "Rice & Grains", type: "CATEGORY", categorySlug: "rice-grains", position: 2 },
+        { menu: "MAIN", label: "Cooking Oil", type: "CATEGORY", categorySlug: "cooking-oil", position: 3 },
+        { menu: "MAIN", label: "Spices & Masala", type: "CATEGORY", categorySlug: "spices", position: 4 },
+        { menu: "MAIN", label: "Tea & Beverages", type: "CATEGORY", categorySlug: "tea-beverages", position: 5 },
+        { menu: "MAIN", label: "Lentils & Pulses", type: "CATEGORY", categorySlug: "lentils-pulses", position: 6 },
       ],
     },
     {
-      menu: "MAIN", label: "Footwear", type: "CATEGORY", categorySlug: "footwear", position: 2,
-      children: [{ menu: "MAIN", label: "Men's Shoes", type: "CATEGORY", categorySlug: "mens-shoes", position: 0 }],
+      menu: "MAIN", label: "Footwear", type: "CATEGORY", categorySlug: "footwear", position: 3,
+      children: [
+        { menu: "MAIN", label: "Men's Shoes", type: "CATEGORY", categorySlug: "mens-shoes", position: 0 },
+        { menu: "MAIN", label: "Sneakers", type: "CATEGORY", categorySlug: "sneakers", position: 1 },
+        { menu: "MAIN", label: "Sandals & Slippers", type: "CATEGORY", categorySlug: "sandals", position: 2 },
+      ],
     },
     {
-      menu: "MAIN", label: "Fashion", type: "CATEGORY", categorySlug: "fashion", position: 3,
-      children: [{ menu: "MAIN", label: "T-Shirts", type: "CATEGORY", categorySlug: "t-shirts", position: 0 }],
+      menu: "MAIN", label: "Fashion", type: "CATEGORY", categorySlug: "fashion", position: 4, isMegaColumn: true,
+      children: [
+        { menu: "MAIN", label: "T-Shirts", type: "CATEGORY", categorySlug: "t-shirts", position: 0 },
+        { menu: "MAIN", label: "Genji & Innerwear", type: "CATEGORY", categorySlug: "genji-innerwear", position: 1 },
+        { menu: "MAIN", label: "Panjabi", type: "CATEGORY", categorySlug: "panjabi", position: 2 },
+        { menu: "MAIN", label: "Bags & Wallets", type: "CATEGORY", categorySlug: "bags-wallets", position: 3 },
+      ],
     },
     {
-      menu: "MAIN", label: "Home & Living", type: "CATEGORY", categorySlug: "home-living", position: 4,
+      menu: "MAIN", label: "Home & Living", type: "CATEGORY", categorySlug: "home-living", position: 5,
       children: [{ menu: "MAIN", label: "Kitchen", type: "CATEGORY", categorySlug: "kitchen", position: 0 }],
     },
 
@@ -1093,6 +1474,7 @@ async function seedNavigation(categoryIds: Record<string, string>) {
     { menu: "FOOTER_SHOP", label: "Groceries", type: "CATEGORY", categorySlug: "groceries", position: 1 },
     { menu: "FOOTER_SHOP", label: "Footwear", type: "CATEGORY", categorySlug: "footwear", position: 2 },
     { menu: "FOOTER_SHOP", label: "Fashion", type: "CATEGORY", categorySlug: "fashion", position: 3 },
+    { menu: "FOOTER_SHOP", label: "Electronics", type: "CATEGORY", categorySlug: "electronics", position: 4 },
 
     { menu: "FOOTER_HELP", label: "Help centre", type: "INTERNAL", url: "/help", position: 0 },
     { menu: "FOOTER_HELP", label: "FAQ", type: "INTERNAL", url: "/faq", position: 1 },
@@ -1494,6 +1876,8 @@ async function main() {
   const { attributeIds, optionIds } = await seedAttributes();
   const productIds = await seedProducts(categoryIds, brandIds, superAdminId);
   await seedVariants(productIds, attributeIds, optionIds);
+
+  await seedReviews(productIds);
 
   await seedPromotions(productIds, categoryIds, superAdminId);
   await seedBanners();

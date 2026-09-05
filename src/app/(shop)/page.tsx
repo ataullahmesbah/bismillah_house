@@ -161,7 +161,7 @@ async function CategoryGridSection({ section }: { section: HomeSectionData }) {
             </div>
             <div className="category-card-body">
               <p className="category-card-name">{category.name}</p>
-              <p className="muted-xs">{category._count.products} item{category._count.products === 1 ? "" : "s"}</p>
+              <p className="muted-xs">{category.productCount} item{category.productCount === 1 ? "" : "s"}</p>
             </div>
           </Link>
         ))}

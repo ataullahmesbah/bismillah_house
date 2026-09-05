@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { artSvg, sceneSvg, type Art } from "./product-art";
+
 /**
  * Demo imagery for the seed.
  *
@@ -20,12 +22,19 @@ const DEMO_DIR = path.join(process.cwd(), "public", "demo");
 const BACKGROUNDS = ["#eceef0", "#e4e7ea", "#dfe3e6", "#e8ebed"];
 const INK = "#23272d";
 
-type Request = { text: string; size: number };
+/** A wide banner scene rather than a square product shot. */
+export type Scene = { items: Art[]; width: number; height: number; tint?: string };
+
+type Request = { text: string; size: number; art?: Art; scene?: Scene };
 
 const requested = new Map<string, Request>();
 
-function fileSlug(text: string, size: number): string {
-  const base = text
+function fileSlug(text: string, size: number, art?: Art): string {
+  // The colour is part of the name: two variants of the same shirt are two
+  // different pictures, and without it the second would silently reuse the
+  // first one's file.
+  const suffix = art ? `-${art.kind}${art.color ? `-${art.color.replace("#", "")}` : ""}` : "";
+  const base = (text + suffix)
     .toLowerCase()
     .normalize("NFKD")
     .replace(/[^a-z0-9]+/g, "-")
@@ -38,9 +47,20 @@ function fileSlug(text: string, size: number): string {
  * Records an image to render and returns the public path the seed should
  * store. Nothing is written until `renderDemoImages()` runs.
  */
-export function demoImage(text: string, size = 800): string {
-  const slug = fileSlug(text, size);
-  if (!requested.has(slug)) requested.set(slug, { text, size });
+export function demoImage(text: string, size = 800, art?: Art): string {
+  const slug = fileSlug(text, size, art);
+  if (!requested.has(slug)) requested.set(slug, { text, size, art });
+  return `/demo/${slug}.png`;
+}
+
+/**
+ * Records a wide banner scene. Same contract as `demoImage`, but the picture is
+ * a group of products on a tinted ground instead of one product on a square.
+ */
+export function demoScene(text: string, scene: Scene): string {
+  const kinds = scene.items.map((art) => art.kind).join("-");
+  const slug = `${fileSlug(`${text} ${kinds}`, scene.width)}x${scene.height}`;
+  if (!requested.has(slug)) requested.set(slug, { text, size: scene.width, scene });
   return `/demo/${slug}.png`;
 }
 
@@ -75,7 +95,12 @@ function wrap(text: string, perLine: number): string[] {
   return lines.slice(0, 4);
 }
 
-function svgFor({ text, size }: Request, index: number): string {
+function svgFor({ text, size, art, scene }: Request, index: number): string {
+  // A drawn product beats a name in a grey box: it is the only way to tell
+  // whether the card, the grid and the gallery actually look right.
+  if (scene) return sceneSvg(scene.items, scene.width, scene.height, scene.tint);
+  if (art) return artSvg(art, size, index);
+
   const background = BACKGROUNDS[index % BACKGROUNDS.length];
   const fontSize = Math.max(14, Math.round(size / 14));
   const lines = wrap(text, Math.max(10, Math.round(size / fontSize) + 2));

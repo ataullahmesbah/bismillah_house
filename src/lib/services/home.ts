@@ -103,16 +103,40 @@ export const getActiveFlashSale = cache(async (): Promise<ActiveFlashSale | null
   };
 });
 
+/**
+ * Top-level categories for the homepage grid, each counting everything beneath
+ * it.
+ *
+ * A shop files its products on the leaves — a phone goes in Mobile & Gadgets,
+ * not in Electronics — so counting only direct children would print "0 items"
+ * on a tile that opens a page listing twelve.
+ */
 export const getFeaturedCategories = cache(async (limit = 10) => {
-  return safeQuery(() => prisma.category.findMany({
-    where: { isActive: true, deletedAt: null, parentId: null },
+  const categories = await safeQuery(() => prisma.category.findMany({
+    where: { isActive: true, deletedAt: null },
     orderBy: [{ isFeatured: "desc" }, { position: "asc" }],
-    take: limit,
     select: {
-      id: true, name: true, slug: true, imageUrl: true, iconName: true,
+      id: true, name: true, slug: true, parentId: true, imageUrl: true, iconName: true,
       _count: { select: { products: { where: { status: "PUBLISHED", deletedAt: null } } } },
     },
   }), [], "featuredCategories");
+
+  const childrenOf = new Map<string, typeof categories>();
+  for (const category of categories) {
+    if (!category.parentId) continue;
+    const bucket = childrenOf.get(category.parentId);
+    if (bucket) bucket.push(category);
+    else childrenOf.set(category.parentId, [category]);
+  }
+
+  const rollUp = (category: (typeof categories)[number]): number =>
+    category._count.products +
+    (childrenOf.get(category.id) ?? []).reduce((total, child) => total + rollUp(child), 0);
+
+  return categories
+    .filter((category) => category.parentId === null)
+    .slice(0, limit)
+    .map((category) => ({ ...category, productCount: rollUp(category) }));
 });
 
 export const getTestimonials = cache(async (limit = 6) => {

@@ -41,6 +41,36 @@ test.describe("cart drawer", () => {
     await expect(page.getByRole("button", { name: /^Cart, 1 item$/ })).toBeVisible();
   });
 
+  /**
+   * The badge after checkout.
+   *
+   * Reported from the live site and missed here because every other test
+   * reaches checkout with `page.goto`, which reloads the page and throws away
+   * the drawer's cached copy of the cart. A shopper clicks, so the header —
+   * and the drawer inside it — stays mounted from the product page all the way
+   * to the confirmation, which is the only way the stale badge shows up.
+   */
+  test("the badge clears once the order is placed", async ({ page }) => {
+    await page.goto("/product/pure-soybean-oil-5l", { waitUntil: "domcontentloaded" });
+    await page.getByRole("button", { name: "Add to cart", exact: true }).click();
+    await expect(page.getByRole("button", { name: /^Cart, 1 item$/ })).toBeVisible();
+
+    // Clicked, never reloaded.
+    await page.getByRole("link", { name: "Checkout" }).first().click();
+    await page.waitForURL(/\/checkout/);
+
+    await page.getByLabel("Full name").fill("Badge Tester");
+    await page.getByLabel("Mobile number").fill("01799999999");
+    await page.getByLabel("District").selectOption({ label: "Sylhet — free delivery" });
+    await page.getByLabel("Full address").fill("Zindabazar, Sylhet");
+    await page.getByRole("button", { name: /Place order/i }).click();
+    await expect(page.getByRole("heading", { name: /Thank you/i })).toBeVisible({ timeout: 30_000 });
+
+    // The order emptied the cart, so the count has to go with it.
+    await expect(page.locator(".cart-badge")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Cart", exact: true })).toBeVisible();
+  });
+
   test("closes on Escape", async ({ page }) => {
     await page.goto("/shop", { waitUntil: "domcontentloaded" });
     await page.getByRole("button", { name: "Add to cart" }).first().click();

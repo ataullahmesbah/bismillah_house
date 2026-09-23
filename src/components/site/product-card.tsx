@@ -61,6 +61,7 @@ export function ProductCard({ product, showQuickAdd = true }: { product: Product
           {showQuickAdd ? (
             <QuickAddButton
               productId={product.id}
+              name={product.name}
               inStock={product.inStock}
               hasVariants={product.hasVariants}
               slug={product.slug}

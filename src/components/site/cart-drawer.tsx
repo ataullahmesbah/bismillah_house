@@ -61,7 +61,21 @@ export function CartDrawer({ initialCount }: { initialCount: number }) {
   const router = useRouter();
   const toast = useToast();
 
-  const count = cart ? cart.itemCount : initialCount;
+  /*
+   * The server's count wins whenever the drawer is shut.
+   *
+   * `cart` is a snapshot taken the last time the drawer was opened, and every
+   * path that changes the cart — adding to it, the cart page, placing an
+   * order — follows up with a refresh that re-renders the header with a new
+   * `initialCount`. Preferring the snapshot meant the badge kept the number
+   * from before checkout: the order emptied the cart and the header knew, but
+   * the badge still read 1 until the shopper opened the drawer and forced a
+   * reload. That is exactly what it looked like — clicking the cart "fixed" it.
+   *
+   * While the drawer is open the snapshot is the honest number, because the
+   * quantity buttons inside it update the snapshot before the refresh lands.
+   */
+  const count = open && cart ? cart.itemCount : initialCount;
 
   const load = useCallback(async () => {
     setLoading(true);

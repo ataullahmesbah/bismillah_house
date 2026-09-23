@@ -168,7 +168,9 @@ test.describe("super admin", () => {
   });
 
   test("products list and variant matrix load", async ({ page }) => {
-    await page.goto("/dashboard/products");
+    // Searched rather than picked off the first page: the catalogue is long
+    // enough that a named product is not guaranteed to be on it.
+    await page.goto("/dashboard/products?q=Premium+Ajwa+Dates");
     await expect(page.getByRole("heading", { name: "Products" })).toBeVisible();
 
     await page.getByRole("link", { name: "Premium Ajwa Dates" }).first().click();

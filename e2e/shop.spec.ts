@@ -72,7 +72,9 @@ test.describe("guest checkout", () => {
     // 1. Choose a variant and add it to the cart.
     await page.goto("/product/premium-ajwa-dates");
     await page.getByRole("button", { name: "1kg", exact: true }).click();
-    await page.getByRole("button", { name: /Add to cart/i }).click();
+    // Exact: the related-products grid below carries its own add buttons, and
+    // those name the product they add ("Add to cart — …").
+    await page.getByRole("button", { name: "Add to cart", exact: true }).click();
     await expect(page.getByText("Added to your cart.")).toBeVisible();
 
     // 2. The cart shows the variant and its price.
@@ -131,7 +133,7 @@ test.describe("guest checkout", () => {
 
   test("the invoice endpoint returns a real PDF", async ({ page, request }) => {
     await page.goto("/product/aromatic-kalijira-rice-5kg");
-    await page.getByRole("button", { name: /Add to cart/i }).click();
+    await page.getByRole("button", { name: "Add to cart", exact: true }).click();
     await expect(page.getByText("Added to your cart.")).toBeVisible();
 
     await page.goto("/checkout");

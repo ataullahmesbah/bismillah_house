@@ -159,8 +159,9 @@ export function AddToCartForm({
 }
 
 /** Compact "quick add" used on product cards in listings. */
-export function QuickAddButton({ productId, inStock, hasVariants, slug }: {
+export function QuickAddButton({ productId, name, inStock, hasVariants, slug }: {
   productId: string;
+  name: string;
   inStock: boolean;
   hasVariants: boolean;
   slug: string;
@@ -178,7 +179,7 @@ export function QuickAddButton({ productId, inStock, hasVariants, slug }: {
   if (hasVariants) {
     return (
       <a href={`/product/${slug}`} className="btn-secondary btn-sm btn-block">
-        Choose options
+        Choose options<span className="sr-only"> for {name}</span>
       </a>
     );
   }
@@ -188,8 +189,15 @@ export function QuickAddButton({ productId, inStock, hasVariants, slug }: {
       <input type="hidden" name="productId" value={productId} />
       <input type="hidden" name="variantId" value="" />
       <input type="hidden" name="quantity" value="1" />
+      {/*
+        * A grid of eight buttons all announced as "Add to cart" tells a screen
+        * reader user nothing about which one they are on. The product name is
+        * appended rather than replacing the label so the accessible name still
+        * contains the visible text (WCAG 2.5.3, Label in Name).
+        */}
       <button type="submit" className="btn-secondary btn-sm btn-block" disabled={!inStock || pending}>
         {!inStock ? "Out of stock" : pending ? "Adding…" : "Add to cart"}
+        <span className="sr-only"> — {name}</span>
       </button>
     </form>
   );
